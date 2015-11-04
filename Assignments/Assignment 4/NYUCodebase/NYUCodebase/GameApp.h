@@ -63,6 +63,7 @@ private:
 	std::vector<Enemy> spawned_enemies;
 	Level* level;
 	GLuint background;
+	Mix_Music *music;
 
 	enum {MAIN_MENU, GAMEPLAY, GAME_OVER};
 	int state;

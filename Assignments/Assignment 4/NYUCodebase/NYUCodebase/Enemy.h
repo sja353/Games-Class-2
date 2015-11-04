@@ -2,13 +2,16 @@
 
 //#include "Sprite.h"
 #include "Player.h"
-
+#include <SDL_mixer.h>
 
 class Enemy : public Sprite{
 protected:
 
+
 public:
+	
 	void die(){
+		Mix_PlayChannel(-1, death_sound, 0);
 		current_frame = death_frame;
 		dead = true;
 		width = 0.0f;

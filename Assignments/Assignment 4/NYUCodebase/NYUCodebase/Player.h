@@ -11,6 +11,10 @@
 }
 class Player : public Sprite{
 public:
+	~Player(){
+		//Mix_FreeChunk(hurt_sound);
+		//Mix_FreeChunk(jump_sound);
+	}
 	Player(){};
 	Player(float size, float x_position, float y_position, int texture, ShaderProgram* program);
 	void move_left(){ 

@@ -20,7 +20,9 @@ void Sprite::move_left(){
 void Sprite::jump(){
 	if (bottom_flag){
 		y_velocity = jump_velocity;
-	}
+		Mix_PlayChannel(-1, jump_sound, 0);
+	} 
+	
 }
 void Sprite::calculate_terrain_collisions(Level* level){
 	int tile_x = this->get_x_tile_position(level->get_tilesize());
@@ -29,19 +31,14 @@ void Sprite::calculate_terrain_collisions(Level* level){
 	TerrainTile upper_tile = level->get_tile(tile_x, tile_y + 1);
 	TerrainTile left_tile = level->get_tile(tile_x - 1, tile_y);
 	TerrainTile right_tile = level->get_tile(tile_x + 1, tile_y);
+	TerrainTile this_tile = level->get_tile(tile_x, tile_y);
 	
-	/*if (left_tile.exists){
-		DBOUT("Player leftmost");
-		DBOUT(x); 
-		DBOUT("Tile: ");
-		DBOUT(left_tile.get_x() + left_tile.get_width()/2);
-
-	}*/
-	if (x < 4){
-		//DBOUT(width);
+	if (this_tile.exists && this->Collides(&this_tile) && !this->dead){
+		this->FixXPenetration(&left_tile);
+		this->FixYPenetration(&left_tile);
 	}
+	
 	if (left_tile.exists && left_tile.right_is_solid() && this->Collides(&left_tile)){
-		//DBOUT("TRIGGERED!");
 		this->FixXPenetration(&left_tile);
 		left_flag = true;
 		x_velocity = 0;
@@ -86,14 +83,14 @@ void Sprite::update(float time_elapsed, Level* level){
 	UpdateY(time_elapsed);
 	calculate_terrain_collisions(level);
 	animation_counter += time_elapsed;
-	if (abs(x_velocity)<minimum_velocity){ current_frame = 0; }
+	if (abs(x_velocity) < minimum_velocity){ current_frame = 0; }
 	else if (current_frame < first_animation_frame){ current_frame = first_animation_frame; }
-	else if (animation_counter > animation_time){
+	else if (animation_counter > animation_time){ 
 		animation_counter = 0;
 		current_frame++;
 		if (current_frame > last_animation_frame){ current_frame = first_animation_frame; }
 	}
-	if (jumping && !bottom_flag && y_velocity > 0){
+	if (!bottom_flag && y_velocity > 0){
 		current_frame = 1;
 	}
 	if (dead){ current_frame = death_frame; }

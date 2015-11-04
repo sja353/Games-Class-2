@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include <SDL_image.h>
 #include <vector>
+#include <SDL_mixer.h>
 
 GameApp::GameApp(){
 	Setup();
@@ -9,6 +10,7 @@ GameApp::GameApp(){
 GameApp::~GameApp(){
 	delete program;
 	delete level;
+	Mix_FreeMusic(music);
 }
 #define DBOUT( s )            \
 {                             \
@@ -36,6 +38,7 @@ void GameApp::Setup(){
 	float x = 3.55f;
 	float y = 2.0f;
 	projectionMatrix.setOrthoProjection(-x, x, -y, y, -1.0f, 1.0f);
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 	//program->setModelMatrix(modelMatrix);
 	program->setViewMatrix(viewMatrix);
 	program->setProjectionMatrix(projectionMatrix);
@@ -47,12 +50,16 @@ void GameApp::Setup(){
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	level = new Level(level_texture, enemy_texture, program);
 	level->generate();
-	player = Player(0.2f, 10*.4f, 30*.4f, player_texture, program);
-	player.set_hitbox(((66.0f/92.0f)*.2f)-.05, 0.2f);
+	player = Player(.2f, 10*.4f, 30*.4f, player_texture, program);
+	player.set_hitbox(((66.0f/92.0f)*.2f)-.05, .2f);
 	slug = Slug(0.2f, 25 * .4f, 11.5*.4f, enemy_texture, program);
 	slug.set_hitbox(0.2f, 0.2f);
 	level->get_enemies_to_draw(&enemies);
 	state = GAMEPLAY;
+
+	
+	music = Mix_LoadMUS("../audio/BDDStage1GM.mid");
+	Mix_PlayMusic(music, -1);
 	//DBOUT(slug.get_width());
 	//DBOUT(slug.get_height());
 	//DBOUT(program);
@@ -151,7 +158,7 @@ void GameApp::RenderGamePlay() {
 	}
 	
 	viewMatrix.identity();
-	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.8, 0);
+	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.6, 0);
 	program->setViewMatrix(viewMatrix);
 	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()));
 	player.Draw();
@@ -252,12 +259,12 @@ void GameApp::DrawBackGround(){
 		4, 4
 	};
 	float vertices[] = {
-		player.get_x()-3.55, player.get_y()-2+.8,
-		player.get_x()+3.55, player.get_y()+2+.8,
-		player.get_x()-3.55, player.get_y()+2+.8,
-		player.get_x()+3.55, player.get_y()+2+.8,
-		player.get_x()-3.55, player.get_y()-2+.8,
-		player.get_x()+3.55, player.get_y()-2+.8
+		player.get_x()-3.55, player.get_y()-2+.6,
+		player.get_x()+3.55, player.get_y()+2+.6,
+		player.get_x()-3.55, player.get_y()+2+.6,
+		player.get_x()+3.55, player.get_y()+2+.6,
+		player.get_x()-3.55, player.get_y()-2+.6,
+		player.get_x()+3.55, player.get_y()-2+.6
 	};
 	/*float vertices[] = {
 		-.5, -.5,

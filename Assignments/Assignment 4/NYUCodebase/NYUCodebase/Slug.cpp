@@ -1,7 +1,8 @@
 #include "Slug.h"
 Slug::Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program){
 
-	acceleration_rate = 2.5;
+	death_sound = Mix_LoadWAV("../audio/enemy_death.wav");
+	acceleration_rate = .5;
 	this->program = program;
 	animation_time = .5f;
 	x = x_position;
@@ -29,7 +30,7 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	first_animation_frame = 0;
 	last_animation_frame = 1;
 	sprite = slimeWalk1;
-	y_gravity = .05;
+	y_gravity = .1;
 	bottom_flag = top_flag = right_flag = left_flag = false;
 }
 

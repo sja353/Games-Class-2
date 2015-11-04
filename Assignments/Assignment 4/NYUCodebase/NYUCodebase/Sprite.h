@@ -3,10 +3,13 @@
 #include "Entity.h"
 #include "Sheetposition.h"
 #include "Level.h"
+#include <SDL_mixer.h>
 
 class Sprite : public Entity{	
+
 public:
 	
+	Mix_Chunk *jump_sound, *hurt_sound, *death_sound;
 	void move_right();
 	void move_left();
 	void jump();
@@ -22,6 +25,7 @@ public:
 		return y_tile;
 	}
 	bool dead = false;
+	int get_current_frame(){ return current_frame; }
 
 protected:
 	bool top_flag, bottom_flag, left_flag, right_flag;

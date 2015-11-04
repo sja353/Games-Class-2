@@ -9,6 +9,8 @@
 
 Player::Player(float size, float x_position, float y_position, int texture, ShaderProgram* program){
 	
+	jump_sound = Mix_LoadWAV("../audio/jump.wav");
+	hurt_sound = Mix_LoadWAV("../audio/hurt.wav");
 	this->program = program;
 	animation_time = .05f;
 	x = x_position;
@@ -56,14 +58,15 @@ Player::Player(float size, float x_position, float y_position, int texture, Shad
 	first_animation_frame = 5;
 	last_animation_frame = 15;
 	sprite = p1_stand;
-	y_gravity = .15;
+	y_gravity = .1;
 	bottom_flag = top_flag = right_flag = left_flag = false;
-	jump_velocity = 6.0;
-	acceleration_rate = 10.0;
+	jump_velocity = 4.0;
+	acceleration_rate = 8.0;
 }
 
 void Player::calculate_enemy_collision(Enemy* enemy){
 	if (this->Collides(enemy)){
+		Mix_PlayChannel(-1, hurt_sound, 0);
 		if (this->y -height/2 > enemy->get_y()){ 
 			enemy->die(); 
 			this->y_acceleration = 0;
