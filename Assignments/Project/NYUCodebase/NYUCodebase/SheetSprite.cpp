@@ -44,6 +44,7 @@ void SheetSprite::Draw(ShaderProgram* program){
 		x, -y
 	};
 	
+	glUseProgram(program->programID);
 	//triangles
 	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
 	glEnableVertexAttribArray(program->positionAttribute);

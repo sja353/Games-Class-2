@@ -5,6 +5,7 @@
 #include "ShaderProgram.h"
 #include "SheetSprite.h"
 #include "Audio.h"
+#include "SpecialEffects.h"
 
 //Purpose: Base class for all objects in the game. Movement and penetration updates are done here
 // SHOULD updates and movements be here? Yes, they have to be
@@ -26,6 +27,7 @@ public:
 	float get_width(){ return width; }
 	float get_height(){ return height; }
 	void set_audio(Audio* new_audio){ audio = new_audio; }
+	void set_effects(SpecialEffects* new_effects){ special_effects = new_effects; }
 protected:
 	ShaderProgram* program;
 	Matrix modelMatrix;
@@ -44,7 +46,7 @@ protected:
 	float y_acceleration = 0.0f;
 	float x_friction = 25.0f;
 	float y_friction = 0.0f;
-	float acceleration_decay = .95;
+	float acceleration_decay = 25.0;
 
 	SheetSprite spritesheet;
 	Sheetposition sprite;
@@ -54,7 +56,7 @@ protected:
 	float maximum_acceleration = 80.0;
 	bool Collides(Entity* other);
 	float lerp(float v0, float v1, float t);
-
+	SpecialEffects* special_effects;
 	Audio* audio;
 };
 

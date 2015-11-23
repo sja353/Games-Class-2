@@ -7,6 +7,7 @@ uniform mat4 projectionMatrix;
 
 varying vec2 texCoordVar;
 
+
 void main()
 {
 	vec4 p = viewMatrix * modelMatrix  * position;

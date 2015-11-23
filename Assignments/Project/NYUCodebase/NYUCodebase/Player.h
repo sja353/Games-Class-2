@@ -18,7 +18,12 @@ public:
 	Player(){};
 	Player(float size, float x_position, float y_position, int texture, ShaderProgram* program);
 	void calculate_enemy_collision(Enemy* enemy);
-	
+	void jump(){
+		if (bottom_flag){
+			//special_effects->jumpTest(x, y);
+			Sprite::jump();
+		}
+	}
 	// getters+setters
 	Sheetposition return_sheet_position();
 	float get_x();

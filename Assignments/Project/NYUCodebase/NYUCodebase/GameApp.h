@@ -1,22 +1,6 @@
 #ifndef GAMEAPP_HEADER
 #define GAMEAPP_HEADER
-
-#include "Matrix.h"
-#include "ShaderProgram.h"
-#include <SDL.h>
-#ifdef _WINDOWS
-	#include <GL/glew.h>
-#endif
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <SDL_image.h>
-#include <stdlib.h>
-#include "Shaderprogram.h"
-#include "Matrix.h"
-#include "Player.h"
-#include "Level.h"
-#include "Slug.h"
-#include "Audio.h"
+#include "LevelScene.h"
 using namespace std;
 class GameApp {
 public:
@@ -64,8 +48,11 @@ private:
 	Level* level;
 	GLuint background;
 	Audio audio;
+	SpecialEffects special_effects;
 	enum {MAIN_MENU, GAMEPLAY, GAME_OVER};
 	int state;
 	
+	//testing
+	int count = 0;
 };
 #endif

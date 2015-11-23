@@ -13,8 +13,8 @@ void Level::get_enemies_to_draw(std::vector<Enemy>* enemy_list){
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
 			if (sprite_save_map[i][j] == (unsigned char)1){
-				Slug slug = Slug(0.2f, j*tilesize, i*tilesize, enemy_texture, program);
-				slug.set_hitbox(0.2f, 0.2f);
+				Slug slug = Slug(0.1f, j*tilesize, i*tilesize, enemy_texture, program);
+				slug.set_hitbox(0.3f, 0.1f);
 				enemy_list->push_back(slug);
 			}
 		}

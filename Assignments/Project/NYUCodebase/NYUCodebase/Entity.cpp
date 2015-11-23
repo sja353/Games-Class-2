@@ -21,7 +21,7 @@ void Entity::UpdateX(float time_elapsed){
 	
 	x_velocity = lerp(x_velocity, 0.0f, time_elapsed*x_friction);
 	x_velocity += x_acceleration*time_elapsed;
-	x_acceleration = acceleration_decay* x_acceleration;
+	x_acceleration = lerp(x_acceleration, 0.0f, time_elapsed*acceleration_decay);
 	x += x_velocity*time_elapsed;
 }
 
