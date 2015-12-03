@@ -1,5 +1,7 @@
 #include "Entity.h"
 #include "Sheetposition.h"
+#include "ProjectileManager.h"
+#include "Projectile.h"
 
 #define DBOUT( s )            \
 {                             \
@@ -18,52 +20,55 @@ void Entity::set_hitbox(float width, float height){
 }
 
 void Entity::UpdateX(float time_elapsed){
-	
-	x_velocity = lerp(x_velocity, 0.0f, time_elapsed*x_friction);
-	x_velocity += x_acceleration*time_elapsed;
-	x_acceleration = lerp(x_acceleration, 0.0f, time_elapsed*acceleration_decay);
-	x += x_velocity*time_elapsed;
+	velocity.set_x(lerp(velocity.get_x(), 0.0f, time_elapsed*friction.get_x()) +acceleration.get_x()*time_elapsed);
+	acceleration.set_x(lerp(acceleration.get_x(), 0.0f, time_elapsed*acceleration_decay));
+	position.set_x(position.get_x() + velocity.get_x()*time_elapsed);
 }
 
 void Entity::UpdateY(float time_elapsed){
 	//y_velocity = lerp(y_velocity, 0.0f, time_elapsed*y_friction);
-	y_velocity += y_acceleration*time_elapsed;
-	y_acceleration =  y_acceleration - y_gravity*time_elapsed;
-	y += y_velocity*time_elapsed;
+	velocity.set_y(velocity.get_y() + acceleration.get_y()*time_elapsed);
+	acceleration.set_y(acceleration.get_y() - gravity.get_y()*time_elapsed);
+	position.set_y(position.get_y()+ velocity.get_y()*time_elapsed);
 }
 
 void Entity::Draw(){
 	spritesheet.set_position(sprite);
-	modelMatrix.Translate(x, y, 0);
+	modelMatrix.Translate(position.get_x(), position.get_y(), 0);
 	if (mirrored){ modelMatrix.Scale(-1.0, 1.0, 0.0); }
+	if (stretchy){ stretch(); }
 	program->setModelMatrix(modelMatrix);
 	spritesheet.Draw(program);
 	modelMatrix.identity();
 }
-
 bool Entity::Collides(Entity* other){
-	return (abs(x - other->x) * 2 <= (width + other->width) && (abs(y - other->y) * 2 <= (height + other->height)));
+	return (abs(position.get_x() - other->get_x()) * 2 <= (width + other->width) && 
+		(abs(position.get_y() - other->get_y()) * 2 <= (height + other->height)));
 }
 
+bool Entity::is_shot(Projectile* bullet){
+	return (abs(position.get_x() - bullet->get_x()) * 2 <= (width + bullet->get_diameter()) &&
+		(abs(position.get_y() - bullet->get_y()) * 2 <= (height + bullet->get_diameter())));
+}
 
 void Entity::FixXPenetration(Entity* other){
-	float x_distance = fabs(x - other->x);
+	float x_distance = fabs(position.get_x() - other->get_x());
 	float penetration = fabs(x_distance - (width / 2) - (other->width / 2));
-	if (x < other->x){
-		x = x - penetration - .0000001;
+	if (position.get_x() < other->get_x()){
+		position.set_x(position.get_x() - penetration - .0000001);
 	}
 	else{
-		x = x + penetration + .00000001;
+		position.set_x( position.get_x() + penetration + .00000001);
 	}
 }
 
 void Entity::FixYPenetration(Entity* other){
-	float y_distance = fabs(y - other->y);
+	float y_distance = fabs(position.get_y() - other->get_y());
 	float penetration = fabs(y_distance - (height / 2) - (other->height / 2));
-	if (y < other->y){
-		y = y - penetration - .001;
+	if (position.get_y() < other->get_y()){
+		position.set_y( position.get_y() - penetration - .001);
 	}
 	else{
-		y = y + penetration + .001;
+		position.set_y(position.get_y() + penetration + .001);
 	}
 }

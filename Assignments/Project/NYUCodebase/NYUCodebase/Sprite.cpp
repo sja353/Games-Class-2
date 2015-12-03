@@ -9,18 +9,18 @@
 
 void Sprite::move_right(){
 	mirrored = false;
-	x_acceleration += acceleration_rate;
+	acceleration.set_x(acceleration.get_x() + acceleration_rate);
 }
 
 void Sprite::move_left(){
 	mirrored = true;
-	x_acceleration -= acceleration_rate;
+	acceleration.set_x(acceleration.get_x()- acceleration_rate);
 }
 
 void Sprite::jump(){
 	if (bottom_flag){
-		y_acceleration = 0;
-		y_velocity = jump_velocity;
+		acceleration.set_y(0);
+		velocity.set_y(jump_velocity);
 		//might not want this here...
 		audio->jumpSound();
 	} 	
@@ -39,13 +39,13 @@ void Sprite::calculate_y_terrain_collisions(Level* level){
 	if (upper_tile.is_there() && upper_tile.bottom_is_solid() && this->Collides(&upper_tile)){
 		this->FixYPenetration(&upper_tile);
 		top_flag = true;
-		y_velocity = 0;
+		velocity.set_y(0);
 	}
 	else{ top_flag = false; }
-	if (lower_tile.is_there() && lower_tile.top_is_solid() && this->Collides(&lower_tile) && !(y_velocity > 0)){
+	if (lower_tile.is_there() && lower_tile.top_is_solid() && this->Collides(&lower_tile) && !(velocity.get_y() > 0)){
 		this->FixYPenetration(&lower_tile);
 		bottom_flag = true;
-		y_velocity = 0;
+		velocity.set_y(0);
 	}
 	else { bottom_flag = false; }
 }
@@ -64,13 +64,13 @@ void Sprite::calculate_x_terrain_collisions(Level* level){
 	if (left_tile.is_there() && left_tile.right_is_solid() && this->Collides(&left_tile)){
 		this->FixXPenetration(&left_tile);
 		left_flag = true;
-		x_velocity = 0;
+		velocity.set_x(0);
 	}
 	else { left_flag = false; }
 	if (right_tile.is_there() && right_tile.left_is_solid() && this->Collides(&right_tile)){
 		this->FixXPenetration(&right_tile);
 		right_flag = true;
-		x_velocity = 0;
+		velocity.set_x(0);
 	}
 	else { right_flag = false; }
 	
@@ -79,15 +79,15 @@ void Sprite::calculate_x_terrain_collisions(Level* level){
 
 // Remove frame decision stuff from this - Sprite should strictly handle movement
 void Sprite::update(float time_elapsed, Level* level){
-	if (y_acceleration > maximum_acceleration){ y_acceleration = maximum_acceleration; }
-	if (y_acceleration < -maximum_acceleration){ y_acceleration = -maximum_acceleration; }
-	if (x_acceleration > maximum_acceleration){ x_acceleration = maximum_acceleration; }
-	if (x_acceleration < -maximum_acceleration) { x_acceleration = -maximum_acceleration; }
-	if (abs(x_velocity) < minimum_velocity) { x_velocity = 0; }
-	if (y_velocity < 0 && bottom_flag){ y_velocity = 0; }
-	if (y_velocity > 0 && top_flag){ y_velocity = 0; }
-	if (x_velocity < 0 && left_flag){ x_velocity = 0; }
-	if (x_velocity > 0 && right_flag) { x_velocity = 0; }
+	if (acceleration.get_y() > maximum_acceleration){ acceleration.set_y ( maximum_acceleration); }
+	if (acceleration.get_y() < -maximum_acceleration){ acceleration.set_y(-maximum_acceleration); }
+	if (acceleration.get_x() > maximum_acceleration){ acceleration.set_x(maximum_acceleration); }
+	if (acceleration.get_x() < -maximum_acceleration) {acceleration.set_x(-maximum_acceleration); }
+	if (abs(velocity.get_x()) < minimum_velocity) { velocity.set_x(0); }
+	if (velocity.get_y() < 0 && bottom_flag){ velocity.set_y(0); }
+	if (velocity.get_y() > 0 && top_flag){ velocity.set_y(0); }
+	if (velocity.get_x() < 0 && left_flag){ velocity.set_x(0); }
+	if (velocity.get_x() > 0 && right_flag) { velocity.set_x(0); }
 	UpdateX(time_elapsed);
 	calculate_x_terrain_collisions(level);
 	UpdateY(time_elapsed);
@@ -98,12 +98,12 @@ void Sprite::update(float time_elapsed, Level* level){
 // getters + setters
 
 int Sprite::get_x_tile_position(float tilesize){
-	int x_tile = (x) / tilesize;
+	int x_tile = (position.get_x()) / tilesize;
 	return x_tile;
 }
 
 int Sprite::get_y_tile_position(float tilesize){
-	int y_tile = (y) / tilesize;
+	int y_tile = (position.get_y())/ tilesize;
 	return y_tile;
 }
 

@@ -1,9 +1,8 @@
-#ifndef TERRAINTILE_HEADER
-#define TERRAINTILE_HEADER
-
+#pragma once
 #include "Entity.h"
 #include "Sheetposition.h"
-
+//#include "Projectile.h"
+#include "ParticleEmitter.h"
 
 
 #define DBOUT( s )            \
@@ -30,10 +29,10 @@ public:
 	float get_width() { return width; }
 	bool is_there(){ return exists; }
 	void set_exists(bool a){ exists = a; }
-
+	bool get_destructible(){ return destructible; }
 private:
 	bool top_solid, bottom_solid, right_solid, left_solid;
 	bool exists = false;
+	bool destructible = true;
 
 };
-#endif

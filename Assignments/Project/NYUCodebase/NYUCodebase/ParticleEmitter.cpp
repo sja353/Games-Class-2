@@ -1,13 +1,19 @@
 #include "ParticleEmitter.h"
-#define DBOUT( s )            \
-{                             \
-   std::ostringstream os_;    \
-   os_ << s;                   \
-   OutputDebugString( os_.str().c_str() );  \
+
+
+void ParticleEmitter::explode(){
+	//this->particle_count = 500;
+	this->velocity.set_x(0);
+	this->velocity.set_y(0);
+	this->velocity_deviation.set_x(5.0);
+	this->velocity_deviation.set_y(5.0);
+	this->max_lifetime = .1f;
 }
 
 ParticleEmitter::ParticleEmitter(unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
-	Vector velocity, Vector velocity_deviation, Color start_color, Color end_color, Color color_deviation, ShaderProgram* program){
+	Vector velocity, Vector velocity_deviation, Color start_color, Color end_color, 
+	Color color_deviation, ShaderProgram* program, unsigned int render_level, float initial_particle_size, float final_particle_size){
+	//DBOUT("created");
 	this->particle_count = particle_count;
 	this->max_lifetime = max_lifetime;
 	this->emitter_max_lifetime = emitter_max_lifetime;
@@ -19,6 +25,9 @@ ParticleEmitter::ParticleEmitter(unsigned int particle_count, float max_lifetime
 	this->end_color = end_color;
 	this->color_deviation = color_deviation;
 	this->program = program;
+	this->render_level = render_level;
+	this->initial_particle_size = initial_particle_size;
+	this->final_particle_size = final_particle_size;
 	for (int i = 0; i < particle_count; i++){
 		Particle particle;
 		particle.color_deviation.r = color_deviation.r * -.5 + (((float)rand()) / (float)RAND_MAX)*color_deviation.r;
@@ -37,6 +46,7 @@ ParticleEmitter::ParticleEmitter(unsigned int particle_count, float max_lifetime
 	}
 }
 void ParticleEmitter::update(float time_elapsed){
+	update_count++;
 	emitter_lifetime += time_elapsed;
 	for (int i = 0; i < particles.size(); i++){
 		particles[i].lifetime += time_elapsed;
@@ -64,20 +74,28 @@ void ParticleEmitter::update(float time_elapsed){
 }
 
 void ParticleEmitter::render(){
-	glPointSize(5.0f);
+	render_count++;
+	/*if (render_count == 100){
+		DBOUT(update_count);
+		render_count = 0;
+		update_count = 0;
+	}*/
+	
+	glPointSize(5.0);
 	std::vector<float> particle_vertices;
 	std::vector<float> particle_colors;
 	for (int i = 0; i < particles.size(); i++){
+		float m = particles[i].lifetime / max_lifetime;
 		particle_vertices.push_back(particles[i].position.get_x());
 		particle_vertices.push_back(particles[i].position.get_y());
-		float m = particles[i].lifetime / max_lifetime;
 		particle_colors.push_back(lerp(start_color.r, end_color.r, m) + particles[i].color_deviation.r);
 		particle_colors.push_back(lerp(start_color.g, end_color.g, m) + particles[i].color_deviation.g);
 		particle_colors.push_back(lerp(start_color.b, end_color.b, m) + particles[i].color_deviation.b);
 		particle_colors.push_back(lerp(start_color.a, end_color.a, m) + particles[i].color_deviation.a);
 	}
-	modelMatrix.identity();
+	//modelMatrix.identity();
 	modelMatrix.Translate(position.get_x(), position.get_y(), 0);
+	modelMatrix.Rotate(rotation);
 	program->setModelMatrix(modelMatrix);
 	glUseProgram(program->programID);
 	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, particle_vertices.data());
@@ -88,5 +106,59 @@ void ParticleEmitter::render(){
 	glDrawArrays(GL_POINTS, 0, particle_vertices.size() / 2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
+	modelMatrix.identity();
+	
+
+	//Problems: Causes a lot of slowdown - more than it should?
+	// Each triangle is rendered a different color
+	// Less particles rendered than there should be?
+
+	/*
+	std::vector<float> particle_vertices;
+	std::vector<float> particle_colors;
+	float particle_size;
+	for (int i = 0; i < particles.size(); i++){
+		float m = particles[i].lifetime / max_lifetime;
+		particle_size = (lerp(initial_particle_size, final_particle_size, m));
+		//DBOUT(initial_particle_size);
+		particle_vertices.push_back(particles[i].position.get_x() - particle_size/2);
+		particle_vertices.push_back(particles[i].position.get_y() - particle_size/2);
+		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
+		float r = lerp(start_color.r, end_color.r, m) + particles[i].color_deviation.r;
+		float g = lerp(start_color.g, end_color.g, m) + particles[i].color_deviation.g;
+		float b = lerp(start_color.b, end_color.b, m) + particles[i].color_deviation.b;
+		float a = lerp(start_color.a, end_color.a, m) + particles[i].color_deviation.a;
+		particle_colors.push_back(r);
+		particle_colors.push_back(g);
+		particle_colors.push_back(b);
+		particle_colors.push_back(a);
+		particle_colors.push_back(r);
+		particle_colors.push_back(g);
+		particle_colors.push_back(b);
+		particle_colors.push_back(a);
+	}
+
 	//modelMatrix.identity();
+	modelMatrix.Translate(position.get_x(), position.get_y(), 0);
+	modelMatrix.Rotate(rotation);
+	program->setModelMatrix(modelMatrix);
+	glUseProgram(program->programID);
+	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, particle_vertices.data());
+	glEnableVertexAttribArray(program->positionAttribute);
+	GLuint colorAttribute = glGetAttribLocation(program->programID, "color");
+	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, false, 0, particle_colors.data());
+	glEnableVertexAttribArray(colorAttribute);
+	glDrawArrays(GL_TRIANGLES, 0, particle_vertices.size()/ 6);
+	glDisableVertexAttribArray(program->positionAttribute);
+	glDisableVertexAttribArray(colorAttribute);
+	modelMatrix.identity();*/
 }

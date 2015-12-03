@@ -1,6 +1,8 @@
 #ifndef GAMEAPP_HEADER
 #define GAMEAPP_HEADER
 #include "LevelScene.h"
+#include "ProjectileManager.h"
+#include "LightManager.h"
 using namespace std;
 class GameApp {
 public:
@@ -43,16 +45,18 @@ private:
 	float time_left_over = 0.0f;
 	Player player;
 	Slug slug;
-	std::vector<Enemy> enemies;
-	std::vector<Enemy> spawned_enemies;
+	std::vector<Enemy*> enemies;
+	std::vector<Enemy*> spawned_enemies;
 	Level* level;
 	GLuint background;
-	Audio audio;
-	SpecialEffects special_effects;
+	Audio* audio;
+	SpecialEffects* special_effects;
 	enum {MAIN_MENU, GAMEPLAY, GAME_OVER};
 	int state;
 	
 	//testing
 	int count = 0;
+	ProjectileManager* projectile_manager;
+	LightManager* light_manager;
 };
 #endif

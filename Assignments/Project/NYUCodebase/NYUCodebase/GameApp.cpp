@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <vector>
 #include <SDL_mixer.h>
+//#include "LevelModifier.h"
 
 GameApp::GameApp(){
 	Setup();
@@ -10,6 +11,18 @@ GameApp::GameApp(){
 GameApp::~GameApp(){
 	delete program;
 	delete level;
+	delete projectile_manager;
+	delete audio;
+	delete special_effects;
+	delete light_manager;
+	/*for (int i = 0; i < spawned_enemies.size(); i++){
+		delete spawned_enemies[i];
+		spawned_enemies.erase(spawned_enemies.begin() + i);
+	}
+	for (int i = 0; i < enemies.size(); i++){
+		delete enemies[i];
+		enemies.erase(enemies.begin() + i);
+	}*/
 }
 #define DBOUT( s )            \
 {                             \
@@ -45,23 +58,30 @@ void GameApp::Setup(){
 	program2->setViewMatrix(viewMatrix);
 	program2->setProjectionMatrix(projectionMatrix);
 	//setup
-	audio = Audio();
-	special_effects = SpecialEffects(program2, &viewMatrix, &projectionMatrix);
-	GLuint player_texture = LoadTexture("../graphics/p1_spritesheet.png", GL_RGBA);
+	audio =new Audio();
+	special_effects = new SpecialEffects(program2, &viewMatrix, &projectionMatrix);
+	GLuint player_texture = LoadTexture("../graphics/player.png", GL_RGBA);
 	GLuint level_texture = LoadTexture("../graphics/tiles_spritesheet.png", GL_RGBA);
 	GLuint enemy_texture = LoadTexture("../graphics/slugs.png", GL_RGBA);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	level = new Level(level_texture, enemy_texture, program);
 	level->generate();
-	player = Player(.2f, 10*.4f, 5*.4f, player_texture, program);
+	light_manager = new LightManager();
+	light_manager->initialize();
+	projectile_manager = new ProjectileManager(special_effects);
+	projectile_manager->set_light_manager(light_manager);
+	
+	player = Player(.2f, 10*.4f, 20*.4f, player_texture, program);
 	player.set_hitbox(((66.0f/92.0f)*.2f)-.05, .2f);
-	player.set_audio(&audio);
-	player.set_effects(&special_effects);
+	player.set_audio(audio);
+	player.set_effects(special_effects);
+	player.set_projectile_manager(projectile_manager);
+	player.set_level_modifier(level);
 	level->get_enemies_to_draw(&enemies);
 	state = GAMEPLAY;
 
 	
-	audio.playMusic();
+	audio->playMusic();
 	//DBOUT(slug.get_width());
 	//DBOUT(slug.get_height());
 	//DBOUT(program);*/
@@ -81,16 +101,18 @@ void GameApp::ProcessEvents(){
 	else if (keys[SDL_SCANCODE_RIGHT] && state == GAMEPLAY){
 		player.move_right();
 	}
-	if (keys[SDL_SCANCODE_SPACE]){ player.jump(); }
+	if (keys[SDL_SCANCODE_UP]){ player.jump(); }
+	if (keys[SDL_SCANCODE_SPACE]) { player.shoot(); }
+	if (keys[SDL_SCANCODE_X]){ player.create_tile(); }
 	else {
 		player.idle();
 	}
 	//delete keys;
 }
-
+// Remember to add something here for erasing dead enemies from the vector
 void GameApp::EnemyActions(){
 	for (int i = 0; i < spawned_enemies.size(); i++){
-		spawned_enemies[i].get_behavior(player.get_x());
+		spawned_enemies[i]->get_behavior(player.get_x());
 	}
 }
 
@@ -116,11 +138,13 @@ void GameApp::UpdateGameOver(float timestep){
 }
 
 void GameApp::UpdateGamePlay(float timestep){
+	projectile_manager->update(timestep, level);
 	player.update(timestep, level);
-	special_effects.update(timestep);
+	special_effects->update(timestep);
 	for (int i = 0; i < spawned_enemies.size(); i++){
-		spawned_enemies[i].update(timestep, level);
-		player.calculate_enemy_collision(&spawned_enemies[i]);
+		spawned_enemies[i]->update(timestep, level);
+		player.calculate_enemy_collision(spawned_enemies[i]);
+		projectile_manager->check_shot_enemies(spawned_enemies[i]);
 	}
 }
 
@@ -147,13 +171,14 @@ void GameApp::RenderGameOver(){
 }
 
 void GameApp::RenderGamePlay() {
-	
 	DrawBackGround();
+	projectile_manager->render();
+	special_effects->render(0);
 	for (int i = 0; i < enemies.size(); i++){
-		if (!(enemies[i].get_x_tile_position(level->get_tilesize()) < player.get_x_tile_position(level->get_tilesize())-20) 
-		&& !(enemies[i].get_x_tile_position(level->get_tilesize()) > player.get_x_tile_position(level->get_tilesize()) + 20)){
+		if (!(enemies[i]->get_x_tile_position(level->get_tilesize()) < player.get_x_tile_position(level->get_tilesize())-20) 
+		&& !(enemies[i]->get_x_tile_position(level->get_tilesize()) > player.get_x_tile_position(level->get_tilesize()) + 20)){
 			spawned_enemies.push_back(enemies[i]);
-			spawned_enemies.back().set_audio(&audio);
+			spawned_enemies.back()->set_audio(audio);
 			enemies.erase(enemies.begin() + i);
 		}
 	}
@@ -163,21 +188,13 @@ void GameApp::RenderGamePlay() {
 	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()));
 	player.Draw();
 	for (int i = 0; i < spawned_enemies.size(); i++){
-		spawned_enemies[i].Draw();
+		spawned_enemies[i]->Draw();
 	}
-	
-	
-	
-	special_effects.render();
-	
+	light_manager->draw_lights(program);
 }
 
 bool GameApp::UpdateAndRender(){
-	count++;
-	if (count > 500){
-		count = 0;
-		special_effects.jumpTest(10 * .4f, 5 * .4f);
-	}
+	
 	float ticks = (float)SDL_GetTicks() / 1000.0f;
 	float elapsed = ticks - lastFrameTicks;
 	lastFrameTicks = ticks;

@@ -7,8 +7,8 @@ void TerrainTile::set_behaviors(bool top, bool bottom, bool right, bool left){
 	left_solid = left;
 }
 TerrainTile::TerrainTile(const TerrainTile &tile){
-	this->x = tile.x;
-	this->y = tile.y;
+	this->position.set_x(tile.get_x());
+	this->position.set_y(tile.get_y());
 	this->spritesheet = tile.spritesheet;
 	this->sprite = tile.sprite;
 	this->program = tile.program;
@@ -19,11 +19,13 @@ TerrainTile::TerrainTile(const TerrainTile &tile){
 	this->left_solid = tile.left_solid;
 	this->width = tile.width;
 	this->height = tile.height;
+	this->hp = tile.hp;
+	this->destructible = tile.destructible;
 }
 
 TerrainTile& TerrainTile::operator= (const TerrainTile &rhs){
-	this->x = rhs.x;
-	this->y = rhs.y;
+	this->position.set_x(rhs.get_x());
+	this->position.set_y(rhs.get_y()); 
 	this->spritesheet = rhs.spritesheet;
 	this->sprite = rhs.sprite;
 	this->program = rhs.program;
@@ -34,12 +36,14 @@ TerrainTile& TerrainTile::operator= (const TerrainTile &rhs){
 	this->left_solid = rhs.left_solid;
 	this->width = rhs.width;
 	this->height = rhs.height;
+	this->hp = rhs.hp;
+	this->destructible = rhs.destructible;
 	return *this;
 }
 
 TerrainTile::TerrainTile(float x, float y, int texture, Sheetposition position, ShaderProgram* program){
-	this->x = x;
-	this->y = y;
+	this->position.set_x(x);
+	this->position.set_y(y);
 	spritesheet = SheetSprite(texture, position);
 	this->sprite = position;
 	this->program = program;

@@ -1,12 +1,12 @@
-#ifndef LEVEL_HEADER
-#define LEVEL_HEADER
-
+#pragma once
 #include "TerrainTile.h"
 #include <vector>
+//class TerrainTile;
 class Enemy;
 // Handles arrays for representing and saving levels and some functions for generating them currently
 class Level{
 public:
+	void modify_tile(int x, int y, unsigned char type);
 	~Level(){
 		for (int i = 0; i < height; i++){
 			delete[] terrain_save_map[i];
@@ -35,8 +35,8 @@ public:
 	void render(int player_x, int player_y);
 	float get_tilesize(){ return tilesize; }
 	TerrainTile get_tile(int x, int y);
-	void Level::get_enemies_to_draw(std::vector<Enemy>* enemies_list);
-
+	void Level::get_enemies_to_draw(std::vector<Enemy*>* enemies_list);
+	void set_tile(int x, int y, TerrainTile tile);
 private:
 	int width= 500;
 	int height=20;
@@ -49,5 +49,3 @@ private:
 	ShaderProgram* program;
 	TerrainTile convert_byte(int x, int y, unsigned char byte);
 };
-
-#endif

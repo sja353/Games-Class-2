@@ -1,5 +1,4 @@
-#ifndef SHEETSPRITE_HEADER
-#define SHEETSPRITE_HEADER
+#pragma once
 #include "ShaderProgram.h"
 #include "Sheetposition.h"
 class SheetSprite {
@@ -28,4 +27,3 @@ private:
 	float aspect;
 	Sheetposition position;
 };
-#endif

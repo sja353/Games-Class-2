@@ -6,6 +6,8 @@
 #include "SheetSprite.h"
 #include "Audio.h"
 #include "SpecialEffects.h"
+class ProjectileManager;
+class Projectile;
 
 //Purpose: Base class for all objects in the game. Movement and penetration updates are done here
 // SHOULD updates and movements be here? Yes, they have to be
@@ -22,32 +24,28 @@ public:
 	
 	//getters/setters
 	ShaderProgram* get_program(){ return program; }
-	float get_x(){ return x;}
-	float get_y(){ return y; }
-	float get_width(){ return width; }
-	float get_height(){ return height; }
+	Vector get_position(){ return position; }
+	float get_x() const { return position.get_x(); }
+	float get_y() const { return position.get_y(); }
+	float get_width()const { return width; }
+	float get_height()const { return height; }
 	void set_audio(Audio* new_audio){ audio = new_audio; }
 	void set_effects(SpecialEffects* new_effects){ special_effects = new_effects; }
+	void set_projectile_manager(ProjectileManager* new_manager){ projectile_manager = new_manager; }
+	void set_hp(int hitpoints){ hp = hitpoints; }
+	int get_hp(){ return hp; }
+	bool is_shot(Projectile* bullet);
+	Sheetposition get_sheet_position() { return sprite; }
 protected:
 	ShaderProgram* program;
 	Matrix modelMatrix;
 	bool mirrored;
-	float x = 0.0f;
-	float y = 0.0f;
+	Vector position, velocity, gravity, acceleration, friction;
 	float rotation =0.0f;
 	float size;
 	float width = 0.0f;
 	float height= 0.0f;
-	//Still setting some values here. Remember to move them when you can
-	float x_velocity = 0.0f;
-	float y_velocity = 0.0f;
-	float y_gravity = 0.0f;
-	float x_acceleration = 0.0f;
-	float y_acceleration = 0.0f;
-	float x_friction = 25.0f;
-	float y_friction = 0.0f;
 	float acceleration_decay = 25.0;
-
 	SheetSprite spritesheet;
 	Sheetposition sprite;
 	
@@ -55,9 +53,16 @@ protected:
 	float minimum_velocity = .01;
 	float maximum_acceleration = 80.0;
 	bool Collides(Entity* other);
+	void stretch(){
+		modelMatrix.Scale(1 + abs((velocity.get_x() / 30.0)), 1 -(velocity.get_y() / 10.0), 0.0);
+	}
+	bool stretchy = false;
 	float lerp(float v0, float v1, float t);
 	SpecialEffects* special_effects;
+	ProjectileManager* projectile_manager;
+
 	Audio* audio;
+	int hp = 0;
 };
 
 #endif

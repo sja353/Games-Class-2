@@ -1,8 +1,8 @@
 #include "Slug.h"
 Slug::Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program){
 	this->program = program;
-	x = x_position;
-	y = y_position;
+	position.set_x(x_position);
+	position.set_y(y_position);
 	this->size = size;
 	
 	// Animation stuff
@@ -25,9 +25,11 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	
 	
 	
-	acceleration_rate = 1.0;
-	y_gravity = 1.0;
+	acceleration_rate = .5;
+	gravity.set_y(1.0);
+	friction.set_x(25.0);
 	bottom_flag = top_flag = right_flag = left_flag = false;
+	hp = 10;
 }
 
 /*void Slug::get_behavior(Player* player){

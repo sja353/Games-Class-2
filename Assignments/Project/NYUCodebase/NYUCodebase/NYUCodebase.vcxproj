@@ -90,15 +90,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h" />
+    <ClInclude Include="BouncingFireball.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Fireball.h" />
     <ClInclude Include="GameApp.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="LevelModifier.h" />
     <ClInclude Include="LevelScene.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="Sheetposition.h" />
     <ClInclude Include="Slug.h" />
     <ClInclude Include="SpecialEffects.h" />
@@ -112,9 +119,9 @@
   <ItemGroup>
     <None Include="fragment.glsl" />
     <None Include="fragments2.glsl" />
-    <None Include="fragment_textured.glsl" />
+    <None Include="fragment_textured_lights.glsl" />
     <None Include="vertex.glsl" />
-    <None Include="vertex_textured.glsl" />
+    <None Include="vertex_textured_lights.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
