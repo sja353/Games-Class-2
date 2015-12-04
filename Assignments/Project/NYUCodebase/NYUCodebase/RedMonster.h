@@ -77,7 +77,7 @@ public:
 		audio->dieSound();
 		current_frame = death_frame;
 		dead = true;
-		this->set_hitbox(0.3, 0.2);
+		this->set_hitbox(0.6, 0.2);
 	}
 	void get_behavior(float player_x, float player_y) {
 		if (!dead){

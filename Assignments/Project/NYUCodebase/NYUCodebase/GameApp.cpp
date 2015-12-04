@@ -61,7 +61,7 @@ void GameApp::Setup(){
 	audio =new Audio();
 	special_effects = new SpecialEffects(program2, &viewMatrix, &projectionMatrix);
 	GLuint player_texture = LoadTexture("../graphics/player.png", GL_RGBA);
-	GLuint level_texture = LoadTexture("../graphics/tiles_spritesheet.png", GL_RGBA);
+	GLuint level_texture = LoadTexture("../graphics/tiles.png", GL_RGBA);
 	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	level = new Level(level_texture, enemy_texture, program);

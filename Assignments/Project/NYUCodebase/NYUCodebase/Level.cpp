@@ -19,7 +19,7 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 				//enemy_list->push_back(slug);
 				RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
 			
-				red_monster->set_hitbox(0.4f, 0.27f);
+				red_monster->set_hitbox(0.6f, 0.27f);
 				enemy_list->push_back(red_monster);
 			}
 		}
@@ -27,13 +27,25 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 }
 
 TerrainTile Level::convert_byte(int y, int x, unsigned char byte){
-	float sheet_width = 914.0f;
-	float sheet_height = 936.0f;
+	float sheet_width = 256.0f;
+	float sheet_height = 256.0f;
 	TerrainTile tile;
 	//tile.exists = false;
+	/*<TextureAtlas imagePath = "sprites.png">
+		<SubTexture name = "tile2.png" x = "0" y = "144" width = "70" height = "70" / >
+		<SubTexture name = "tile2grass.png" x = "72" y = "72" width = "70" height = "70" / >
+		<SubTexture name = "tile3.png" x = "72" y = "0" width = "70" height = "70" / >
+		<SubTexture name = "tile3grass.png" x = "72" y = "144" width = "70" height = "70" / >
+		<SubTexture name = "tile4.png" x = "0" y = "72" width = "70" height = "70" / >
+		<SubTexture name = "tile4grass.png" x = "0" y = "0" width = "70" height = "70" / >
+		< / TextureAtlas>*/
 	if (byte == (unsigned char)1){
+		int roll = rand() % 3;
 		//"stoneCenter.png" x="144" y="576" width="70" height="70"
-		Sheetposition position = Sheetposition(144.0f, 576.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
+		Sheetposition position;
+		if (roll == 1){ position = Sheetposition(0.0f, 144.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
+		else if (roll == 2){  position = Sheetposition(72.0f, 0.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
+		else { position = Sheetposition(0.0f, 72.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
 		tile = TerrainTile(x*tilesize + tilesize/2, y*tilesize +tilesize/2, tile_texture, position, program);
 		tile.set_behaviors(true, true, true, true);
 		tile.set_exists(true);
@@ -43,7 +55,11 @@ TerrainTile Level::convert_byte(int y, int x, unsigned char byte){
 	}
 	else if (byte == (unsigned char)2){
 		//"stoneMid.png" x="72" y="432" width="70" height="70"
-		Sheetposition position = Sheetposition(72.0f, 432.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
+		int roll = rand() % 3;
+		Sheetposition position;
+		if (roll == 1){ position = Sheetposition(72.0f, 72.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
+		else if (roll == 2){ position = Sheetposition(72.0f, 144.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
+		else { position = Sheetposition(0.0f, 0.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
 		tile = TerrainTile(x * tilesize + tilesize /2, y*tilesize + tilesize /2, tile_texture, position, program);
 		tile.set_behaviors(true, true , true, true);
 		tile.set_exists(true);
