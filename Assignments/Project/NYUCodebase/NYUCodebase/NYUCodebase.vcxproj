@@ -96,6 +96,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="GameApp.h" />
+    <ClInclude Include="RedMonster.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelModifier.h" />
     <ClInclude Include="LevelScene.h" />

@@ -7,8 +7,8 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	
 	// Animation stuff
 	animation_time = .5f;
-	float sheet_width = 128;
-	float sheet_length = 256;
+	float sheet_width = 256;
+	float sheet_length = 512;
 	Sheetposition slimeDead = Sheetposition(0, 66, 110, 39, this->size/2, sheet_width, sheet_length);
 	Sheetposition slimeWalk1 = Sheetposition(0, 107, 110, 64, this->size, sheet_width, sheet_length);
 	Sheetposition slimeWalk2 = Sheetposition(0, 0, 115, 64, this->size, sheet_width, sheet_length);
@@ -32,14 +32,4 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	hp = 10;
 }
 
-/*void Slug::get_behavior(Player* player){
-	if (player->get_x() < x) {
-		this->move_left();
-		this->mirrored = !this->mirrored;
-	}
-	else{ 
-		this->move_right(); 
-		this->mirrored = !this->mirrored;
-	}
-}*/
 

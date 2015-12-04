@@ -164,6 +164,9 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files\Effects</Filter>
     </ClInclude>
+    <ClInclude Include="RedMonster.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragments2.glsl">

@@ -1,5 +1,6 @@
 #include "Level.h"
 #include "Slug.h"
+#include "RedMonster.h"
 #include<vector>
 #include "Enemy.h"
 #define DBOUT( s )            \
@@ -13,9 +14,13 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
 			if (sprite_save_map[i][j] == (unsigned char)1){
-				Slug* slug = new Slug(0.1f, j*tilesize, i*tilesize, enemy_texture, program);
-				slug->set_hitbox(0.3f, 0.1f);
-				enemy_list->push_back(slug);
+				//Slug* slug = new Slug(0.1f, j*tilesize, i*tilesize, enemy_texture, program);
+				//slug->set_hitbox(0.3f, 0.1f);
+				//enemy_list->push_back(slug);
+				RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
+			
+				red_monster->set_hitbox(0.4f, 0.27f);
+				enemy_list->push_back(red_monster);
 			}
 		}
 	}
@@ -163,9 +168,30 @@ void Level::generate() {
 	}
 	
 	//CAVE GENERATION
+	
 	/*
+	for (int i = 0; i < height; i++){
+		delete[] terrain_save_map[i];
+		delete[] terrain_map[i];
+		delete[] sprite_save_map[i];
+	}
+	delete[] terrain_save_map;
+	delete[] terrain_map;
+	delete[] sprite_save_map;
 	width = 100;
 	height = 1000;
+
+
+	terrain_save_map = new unsigned char*[height];
+	terrain_map = new TerrainTile*[height];
+	sprite_save_map = new unsigned char*[height];
+	for (int i = 0; i < height; i++){
+		terrain_save_map[i] = new unsigned char[width];
+		terrain_map[i] = new TerrainTile[width];
+		sprite_save_map[i] = new unsigned char[width];
+	}
+
+	
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
 			terrain_save_map[i][j] = (unsigned char)(rand() % 2);

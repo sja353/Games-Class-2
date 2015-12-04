@@ -62,7 +62,7 @@ void GameApp::Setup(){
 	special_effects = new SpecialEffects(program2, &viewMatrix, &projectionMatrix);
 	GLuint player_texture = LoadTexture("../graphics/player.png", GL_RGBA);
 	GLuint level_texture = LoadTexture("../graphics/tiles_spritesheet.png", GL_RGBA);
-	GLuint enemy_texture = LoadTexture("../graphics/slugs.png", GL_RGBA);
+	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	level = new Level(level_texture, enemy_texture, program);
 	level->generate();
@@ -112,7 +112,7 @@ void GameApp::ProcessEvents(){
 // Remember to add something here for erasing dead enemies from the vector
 void GameApp::EnemyActions(){
 	for (int i = 0; i < spawned_enemies.size(); i++){
-		spawned_enemies[i]->get_behavior(player.get_x());
+		spawned_enemies[i]->get_behavior(player.get_x(), player.get_y());
 	}
 }
 
@@ -143,8 +143,14 @@ void GameApp::UpdateGamePlay(float timestep){
 	special_effects->update(timestep);
 	for (int i = 0; i < spawned_enemies.size(); i++){
 		spawned_enemies[i]->update(timestep, level);
-		player.calculate_enemy_collision(spawned_enemies[i]);
-		projectile_manager->check_shot_enemies(spawned_enemies[i]);
+		if (spawned_enemies[i]->is_expired()){
+			delete spawned_enemies[i];
+			spawned_enemies.erase(spawned_enemies.begin() + i);
+		}
+		else{
+			player.calculate_enemy_collision(spawned_enemies[i]);
+			projectile_manager->check_shot_enemies(spawned_enemies[i]);
+		}
 	}
 }
 

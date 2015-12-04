@@ -7,12 +7,21 @@
 //have been having some trouble getting enemy to work as an abstract class
 class Slug : public Enemy{
 public:
+	~Slug(){
+		delete frames;
+	}
 	Slug(){}
 	Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program);
 	void update(float time_elapsed, Level* level){
 		if (hp <= 0 && !dead) { die(); }
 		decide_frame();
-		if (dead){ Entity::UpdateY(time_elapsed); }
+		if (dead){ 
+			Entity::UpdateY(time_elapsed); 
+			death_counter += time_elapsed;
+			if (death_counter >= death_time){
+				expired = true;
+			}
+		}
 		else { Sprite::update(time_elapsed, level); }
 	}
 	void die(){
@@ -22,7 +31,7 @@ public:
 		width = 0.0f;
 		height = 0.0f;
 	}
-	void get_behavior(float player_x) {
+	void get_behavior(float player_x, float player_y) {
 		if (!dead){
 			if (player_x < position.get_x()) {
 				this->move_left();
@@ -41,9 +50,13 @@ public:
 			current_frame++;
 			if (current_frame > walk_end){ current_frame = walk_begin; }
 		}
-		if (dead){ current_frame = death_frame; }
+		if (dead){ 
+			current_frame = death_frame;
+		}
 		sprite = frames[current_frame];
 	}
 private:
+	float death_counter = 0.0f;
+	float death_time = 5.0f;
 };
 #endif
