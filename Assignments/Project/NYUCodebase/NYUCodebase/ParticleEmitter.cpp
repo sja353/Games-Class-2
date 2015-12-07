@@ -116,7 +116,7 @@ void ParticleEmitter::render(){
 	std::vector<float> particle_vertices;
 	std::vector<float> particle_colors;
 	float particle_size;
-	initial_particle_size = .1;
+	initial_particle_size = .05;
 	final_particle_size = .035;
 	for (int i = 0; i < particles.size(); i++){
 		float m = particles[i].lifetime / max_lifetime;
@@ -156,7 +156,7 @@ void ParticleEmitter::render(){
 	GLuint colorAttribute = glGetAttribLocation(program->programID, "color");
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, false, 0, particle_colors.data());
 	glEnableVertexAttribArray(colorAttribute);
-	glDrawArrays(GL_TRIANGLES, 0, particle_vertices.size()/ 6);
+	glDrawArrays(GL_TRIANGLES, 0, particle_vertices.size()/ 2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 	modelMatrix.identity();
