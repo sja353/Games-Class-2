@@ -1,5 +1,11 @@
 
 #include "ShaderProgram.h"
+#define DBOUT( s )            \
+{                             \
+   std::ostringstream os_;    \
+   os_ << s;                   \
+   OutputDebugString( os_.str().c_str() );  \
+}
 
 ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentShaderFile) {
     
@@ -40,7 +46,7 @@ GLuint ShaderProgram::loadShaderFromFile(const std::string &shaderFile, GLenum t
     std::ifstream infile(shaderFile);
     
     if(infile.fail()) {
-        std::cout << "Error opening shader file:" << shaderFile << std::endl;
+		DBOUT("Error opening shader file:" << shaderFile);
     }
     
     //Create a string buffer and stream the file to it
@@ -73,7 +79,7 @@ GLuint ShaderProgram::loadShaderFromString(const std::string &shaderContents, GL
     if (compileSuccess == GL_FALSE) {
         GLchar messages[512];
         glGetShaderInfoLog(shaderID, sizeof(messages), 0, &messages[0]);
-        std::cout << messages << std::endl;
+		DBOUT(messages << std::endl);
     }
     
     // return the shader id

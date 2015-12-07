@@ -89,11 +89,11 @@ void Level::render(int player_x, int player_y){
 				terrain_map[i][j].set_exists(false); 
 			}
 			if (terrain_map[i][j].is_there()){
-				/*float u_plus = terrain_map[i][j].get_sheet_position().u + terrain_map[i][j].get_sheet_position().width;
+				float u_plus = terrain_map[i][j].get_sheet_position().u + terrain_map[i][j].get_sheet_position().width;
 				float v_plus = terrain_map[i][j].get_sheet_position().v + terrain_map[i][j].get_sheet_position().height;
 				float aspect = terrain_map[i][j].get_sheet_position().width / terrain_map[i][j].get_sheet_position().height;
-				float x = 0.5f*aspect*terrain_map[i][j].get_sheet_position().size;
-				float y = 0.5f*terrain_map[i][j].get_sheet_position().size;
+				//float x = 0.5f*aspect*terrain_map[i][j].get_sheet_position().size;
+				//float y = 0.5f*terrain_map[i][j].get_sheet_position().size;
 				tile_texcoords.insert(tile_texcoords.end(), {
 					terrain_map[i][j].get_sheet_position().u, v_plus,
 					u_plus, terrain_map[i][j].get_sheet_position().v,
@@ -103,19 +103,19 @@ void Level::render(int player_x, int player_y){
 					u_plus, v_plus
 				});
 				tile_vertices.insert(tile_vertices.end(), {
-					-tilesize*j, -tilesize*i,
 					tilesize*j, tilesize*i,
-					-tilesize*j, tilesize*i,
+					tilesize*j + tilesize, tilesize*i + tilesize,
+					tilesize*j, tilesize*i + tilesize,
+					tilesize*j + tilesize, tilesize*i + tilesize,
 					tilesize*j, tilesize*i,
-					-tilesize*j, -tilesize*i,
-					tilesize*j, -tilesize*i
-				});*/
+					tilesize*j + tilesize, tilesize*i
+				});
 
-				terrain_map[i][j].Draw();
+				//terrain_map[i][j].Draw();
 			}
 		}
 	}
-	/*
+	
 	//glBindTexture(GL_TEXTURE_2D, tile_texture);
 	glUseProgram(program->programID);
 	//triangles
@@ -132,10 +132,10 @@ void Level::render(int player_x, int player_y){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//finish
-	glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size()/6);
+	glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size()/2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(program->texCoordAttribute);
-	*/
+	
 	//to_render.clear();
 }
 TerrainTile Level::get_tile(int x, int y){

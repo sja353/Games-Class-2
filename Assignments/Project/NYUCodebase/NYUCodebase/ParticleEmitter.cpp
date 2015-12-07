@@ -80,7 +80,7 @@ void ParticleEmitter::render(){
 		render_count = 0;
 		update_count = 0;
 	}*/
-	
+	/*
 	glPointSize(5.0);
 	std::vector<float> particle_vertices;
 	std::vector<float> particle_colors;
@@ -107,22 +107,23 @@ void ParticleEmitter::render(){
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 	modelMatrix.identity();
-	
+	*/
 
 	//Problems: Causes a lot of slowdown - more than it should?
-	// Each triangle is rendered a different color
 	// Less particles rendered than there should be?
 
-	/*
+	
 	std::vector<float> particle_vertices;
 	std::vector<float> particle_colors;
 	float particle_size;
+	initial_particle_size = .1;
+	final_particle_size = .035;
 	for (int i = 0; i < particles.size(); i++){
 		float m = particles[i].lifetime / max_lifetime;
 		particle_size = (lerp(initial_particle_size, final_particle_size, m));
 		//DBOUT(initial_particle_size);
-		particle_vertices.push_back(particles[i].position.get_x() - particle_size/2);
-		particle_vertices.push_back(particles[i].position.get_y() - particle_size/2);
+		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
@@ -137,14 +138,12 @@ void ParticleEmitter::render(){
 		float g = lerp(start_color.g, end_color.g, m) + particles[i].color_deviation.g;
 		float b = lerp(start_color.b, end_color.b, m) + particles[i].color_deviation.b;
 		float a = lerp(start_color.a, end_color.a, m) + particles[i].color_deviation.a;
-		particle_colors.push_back(r);
-		particle_colors.push_back(g);
-		particle_colors.push_back(b);
-		particle_colors.push_back(a);
-		particle_colors.push_back(r);
-		particle_colors.push_back(g);
-		particle_colors.push_back(b);
-		particle_colors.push_back(a);
+		for (int i = 0; i < 6; i++){
+			particle_colors.push_back(r);
+			particle_colors.push_back(g);
+			particle_colors.push_back(b);
+			particle_colors.push_back(a);
+		}
 	}
 
 	//modelMatrix.identity();
@@ -160,5 +159,5 @@ void ParticleEmitter::render(){
 	glDrawArrays(GL_TRIANGLES, 0, particle_vertices.size()/ 6);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
-	modelMatrix.identity();*/
+	modelMatrix.identity();
 }
