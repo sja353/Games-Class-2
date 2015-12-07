@@ -44,7 +44,7 @@ void GameApp::Setup(){
 		glewInit();
 	#endif
 	glViewport(0, 0, 1280, 720);
-    program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+    program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured_lights.glsl", RESOURCE_FOLDER"fragment_textured_lights.glsl");
 	ShaderProgram* program2 = new ShaderProgram(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragments2.glsl");
 	glUseProgram(program->programID);
 	
@@ -215,8 +215,7 @@ bool GameApp::UpdateAndRender(){
 		fixed_elapsed -= FIXED_TIMESTEP;
 		Update(FIXED_TIMESTEP);
 	}
-	time_left_over = fixed_elapsed;
-	Update(time_left_over);
+	Update(fixed_elapsed);
 	Render();
 	return done;
 }

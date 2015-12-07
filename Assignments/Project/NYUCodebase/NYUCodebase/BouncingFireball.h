@@ -3,6 +3,9 @@
 
 class BouncingFireball :public Projectile{
 public:
+	~BouncingFireball() {
+		light->turn_off();
+	}
 	void check_for_shots(Entity* entity)override{
 		if (!exploding && entity->is_shot(this)){
 			impacts++;
@@ -18,6 +21,9 @@ public:
 		light->tint.r = 1.0;
 		light->tint.g = 0.0;
 		light->tint.b = .66;
+		light->a = 1.0;
+		light->b = 2.0;
+		light->is_off = false;
 		light_manager->accept_light(light);
 		position = initial_position;
 		velocity = initial_velocity;

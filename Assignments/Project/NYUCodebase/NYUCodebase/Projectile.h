@@ -31,7 +31,7 @@ protected:
 	bool exploding = false;
 	int damage;
 public:
-	~Projectile(){
+	virtual ~Projectile(){
 		delete emitter;
 	}
 	Projectile(){}

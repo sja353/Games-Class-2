@@ -79,7 +79,7 @@ GLuint ShaderProgram::loadShaderFromString(const std::string &shaderContents, GL
     if (compileSuccess == GL_FALSE) {
         GLchar messages[512];
         glGetShaderInfoLog(shaderID, sizeof(messages), 0, &messages[0]);
-		DBOUT(messages << std::endl);
+		DBOUT("Shader Error: " << messages << std::endl);
     }
     
     // return the shader id

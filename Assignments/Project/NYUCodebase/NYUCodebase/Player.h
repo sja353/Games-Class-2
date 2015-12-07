@@ -51,11 +51,11 @@ public:
 
 	void Draw(){
 		render_count++;
-		/*if (render_count == 1000){
+		if (render_count == 1000){
 			DBOUT(update_count);
 			render_count = 0;
 			update_count = 0;
-		}*/
+		}
 		Entity::Draw();
 	}
 
