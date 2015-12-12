@@ -1,4 +1,5 @@
 #pragma once
+
 #include "TerrainTile.h"
 #include <vector>
 //class TerrainTile;
@@ -6,6 +7,8 @@ class Enemy;
 // Handles arrays for representing and saving levels and some functions for generating them currently
 class Level{
 public:
+	float get_x_spawn_position() { return x_spawn; }
+	float get_y_spawn_position() { return y_spawn; }
 	void modify_tile(int x, int y, unsigned char type);
 	~Level(){
 		for (int i = 0; i < height; i++){
@@ -38,9 +41,27 @@ public:
 	void Level::get_enemies_to_draw(std::vector<Enemy*>* enemies_list);
 	void set_tile(int x, int y, TerrainTile tile);
 private:
+	void split(int level, int max_depth, int begin_x, int end_x, int begin_y, int end_y);
+	void form_platforms(int begin_x, int end_x, int begin_y, int end_y);
+	
+	void build_horizontal_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height);
+	bool is_room_for_horizontal_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height);
+	void build_vertical_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height);
+	bool is_room_for_vertical_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height);
+	void build_horizontal_hall_and_room_left(int x, int y, int hallway_length, int room_width, int room_height);
+	bool is_room_for_horizontal_hall_and_room_left(int x, int y, int hallway_length, int room_width, int room_height);
+	float x_spawn;
+	float y_spawn;
 	int width= 500;
 	int height=20;
 	float tilesize = .4;
+	int max_room_height;
+	int min_room_height;
+	int max_room_width;
+	int min_room_width;
+	int vertical_drop_chance;
+	int room_from_edge;
+	int attempts_to_fit;
 	unsigned char** terrain_save_map;
 	unsigned char** sprite_save_map;
 	TerrainTile** terrain_map;

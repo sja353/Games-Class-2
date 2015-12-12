@@ -34,6 +34,8 @@ public:
 		}
 	}
 	void draw_lights(ShaderProgram* program){
+
+
 		GLint lightPositionsUniform = glGetUniformLocation(program->programID, "lightPositions");
 		GLint lightColorsUniform = glGetUniformLocation(program->programID, "lightColors");
 		GLint lightABUniform = glGetUniformLocation(program->programID, "lightAB");

@@ -26,7 +26,6 @@ void SheetSprite::Draw(ShaderProgram* program){
 	x = 0.5f*aspect*position.size;
 	y = 0.5f*position.size;
 	
-	glBindTexture(GL_TEXTURE_2D, textureID);
 	GLfloat texcoords[] = {
 		position.u, v_plus,
 		u_plus, position.v,

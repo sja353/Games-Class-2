@@ -12,15 +12,17 @@ private:
 	unsigned int particle_count, render_level;
 	float max_lifetime;
 	Vector position, gravity, velocity, velocity_deviation;
-	
+	GLuint texture;
 	Color start_color, end_color, color_deviation;
 	ShaderProgram* program;
 	std::vector<ParticleEmitter> active_emitters;
 	Matrix *viewMatrix, *projectionMatrix;
 public:
-	//~SpecialEffects(){ delete program; }
+	~SpecialEffects(){ delete program; }
 	SpecialEffects(){}
-	
+	void set_texture(GLuint texture){
+		this->texture = texture;
+	}
 	SpecialEffects(ShaderProgram* program, Matrix* viewMatrix, Matrix* projectionMatrix){ 
 		this->program = program; 
 		this->viewMatrix = viewMatrix;
@@ -40,8 +42,8 @@ public:
 		this->end_color = end_color;
 		this->color_deviation = color_deviation;
 		render_level = 0;
-		ParticleEmitter* new_emitter = new  ParticleEmitter(particle_count, max_lifetime, 2.0, this->position, gravity, this->velocity,
-			velocity_deviation, start_color, end_color, color_deviation, program, render_level, .03f, .03f);
+		ParticleEmitter* new_emitter = new  ParticleEmitter(texture, particle_count, max_lifetime, 2.0, this->position, gravity, this->velocity,
+			velocity_deviation, start_color, end_color, color_deviation, program, render_level, .025f, .0175f, 6.28);
 		clear_all_values();
 		return new_emitter;
 		//active_emitters.push_back(new_emitter);
@@ -60,7 +62,7 @@ public:
 		color_deviation.clear();
 		color_deviation.a = 0.0;
 	}
-	void jumpTest(float x, float y){
+	/*void jumpTest(float x, float y){
 		particle_count = 50;
 		max_lifetime = .5;
 		position.set_x(x);
@@ -87,7 +89,7 @@ public:
 		ParticleEmitter new_emitter = ParticleEmitter(particle_count, max_lifetime, 2.0, position, gravity, velocity, 
 										velocity_deviation, start_color, end_color, color_deviation, program, render_level);
 		active_emitters.push_back(new_emitter);
-	}
+	}*/
 	void update(float time_elapsed){
 		for (int i = 0; i < active_emitters.size(); i++){
 			active_emitters[i].update(time_elapsed);

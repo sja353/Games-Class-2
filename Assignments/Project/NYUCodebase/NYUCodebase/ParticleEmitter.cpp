@@ -10,10 +10,11 @@ void ParticleEmitter::explode(){
 	this->max_lifetime = .1f;
 }
 
-ParticleEmitter::ParticleEmitter(unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
+ParticleEmitter::ParticleEmitter(GLuint texture, unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
 	Vector velocity, Vector velocity_deviation, Color start_color, Color end_color, 
-	Color color_deviation, ShaderProgram* program, unsigned int render_level, float initial_particle_size, float final_particle_size){
+	Color color_deviation, ShaderProgram* program, unsigned int render_level, float initial_particle_size, float final_particle_size, float rotation_rate){
 	//DBOUT("created");
+	this->texture = texture;
 	this->particle_count = particle_count;
 	this->max_lifetime = max_lifetime;
 	this->emitter_max_lifetime = emitter_max_lifetime;
@@ -26,6 +27,7 @@ ParticleEmitter::ParticleEmitter(unsigned int particle_count, float max_lifetime
 	this->color_deviation = color_deviation;
 	this->program = program;
 	this->render_level = render_level;
+	this->rotation_rate = rotation_rate;
 	this->initial_particle_size = initial_particle_size;
 	this->final_particle_size = final_particle_size;
 	for (int i = 0; i < particle_count; i++){
@@ -65,6 +67,7 @@ void ParticleEmitter::update(float time_elapsed){
 			particles[i].color_deviation.b = color_deviation.b * -.5 + (((float)rand()) / (float)RAND_MAX)*color_deviation.b;
 			particles[i].color_deviation.a = color_deviation.a * -.5 + (((float)rand()) / (float)RAND_MAX)*color_deviation.a;
 		}
+		particles[i].rotation += rotation_rate * time_elapsed;
 		particles[i].position.set_x(particles[i].position.get_x() + particles[i].velocity.get_x()*time_elapsed);
 		particles[i].position.set_y(particles[i].position.get_y() + particles[i].velocity.get_y()*time_elapsed);
 		particles[i].velocity.set_x(particles[i].velocity.get_x() - gravity.get_x()*time_elapsed);
@@ -114,26 +117,65 @@ void ParticleEmitter::render(){
 
 	
 	std::vector<float> particle_vertices;
+	std::vector<float> texCoords;
 	std::vector<float> particle_colors;
 	float particle_size;
-	initial_particle_size = .05;
-	final_particle_size = .035;
 	for (int i = 0; i < particles.size(); i++){
 		float m = particles[i].lifetime / max_lifetime;
 		particle_size = (lerp(initial_particle_size, final_particle_size, m));
-		//DBOUT(initial_particle_size);
+		float cosTheta = cosf(particles[i].rotation);
+		float sinTheta = sinf(particles[i].rotation);
+
+		float TL_x = cosTheta * -particle_size - sinTheta* particle_size;
+		float TL_y = sinTheta * -particle_size + cosTheta * particle_size;
+		
+		float BL_x = cosTheta * -particle_size - sinTheta * -particle_size;
+		float BL_y = sinTheta * -particle_size + cosTheta *-particle_size;
+
+		float BR_x = cosTheta * particle_size - sinTheta * -particle_size;
+		float BR_y = sinTheta * particle_size + cosTheta * -particle_size;
+
+		float TR_x = cosTheta *particle_size - sinTheta * particle_size;
+		float TR_y = sinTheta * particle_size + cosTheta *particle_size;
+
+		particle_vertices.insert(particle_vertices.end(), {
+			particles[i].position.get_x() + BL_x, particles[i].position.get_y() + BL_y,
+			particles[i].position.get_x() + TR_x, particles[i].position.get_y() + TR_y,
+			particles[i].position.get_x() + TL_x, particles[i].position.get_y() + TL_y,
+
+			particles[i].position.get_x() + TR_x, particles[i].position.get_y() + TR_y,
+			particles[i].position.get_x() + BL_x, particles[i].position.get_y() + BL_y,
+			particles[i].position.get_x() + BR_x, particles[i].position.get_y() + BR_y,
+		});
+
+
+		/*//DBOUT(initial_particle_size);
+		//bottom left
 		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
+		// top right
 		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		//top left
 		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		// top right
 		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() + particle_size / 2);
+		// bottom left
 		particle_vertices.push_back(particles[i].position.get_x() - particle_size / 2);
 		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
+		//bottom right	
 		particle_vertices.push_back(particles[i].position.get_x() + particle_size / 2);
-		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);
+		particle_vertices.push_back(particles[i].position.get_y() - particle_size / 2);*/
+		texCoords.insert(texCoords.end(),
+		{ 0.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f,
+
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 1.0f });
 		float r = lerp(start_color.r, end_color.r, m) + particles[i].color_deviation.r;
 		float g = lerp(start_color.g, end_color.g, m) + particles[i].color_deviation.g;
 		float b = lerp(start_color.b, end_color.b, m) + particles[i].color_deviation.b;
@@ -156,8 +198,13 @@ void ParticleEmitter::render(){
 	GLuint colorAttribute = glGetAttribLocation(program->programID, "color");
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, false, 0, particle_colors.data());
 	glEnableVertexAttribArray(colorAttribute);
+	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords.data());
+	//glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glDrawArrays(GL_TRIANGLES, 0, particle_vertices.size()/ 2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
+	glDisableVertexAttribArray(program->texCoordAttribute);
 	modelMatrix.identity();
 }

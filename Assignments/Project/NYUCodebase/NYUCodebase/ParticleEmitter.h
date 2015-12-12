@@ -13,9 +13,9 @@
 #include "Color.h"
 class ParticleEmitter{
 public:
-	ParticleEmitter(unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
+	ParticleEmitter(GLuint texture, unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
 		Vector velocity, Vector velocity_deviation, Color start_color, Color end_color, Color color_deviation, ShaderProgram* program,
-		unsigned int render_level, float initial_particle_size = 1.0f, float final_particle_size = 1.0f);
+		unsigned int render_level, float initial_particle_size = 1.0f, float final_particle_size = 1.0f, float rotation_rate = 0.0f);
 	ParticleEmitter(){}
 	~ParticleEmitter(){}
 
@@ -50,6 +50,7 @@ private:
 	float max_lifetime;
 	float initial_particle_size;
 	float final_particle_size;
+	float rotation_rate;
 	std::vector<Particle> particles;
 	Color start_color;
 	Color end_color;
@@ -57,4 +58,5 @@ private:
 	Matrix modelMatrix;
 	int render_count = 0;
 	int update_count = 0;
+	GLuint texture;
 };

@@ -63,6 +63,8 @@ void GameApp::Setup(){
 	GLuint player_texture = LoadTexture("../graphics/player.png", GL_RGBA);
 	GLuint level_texture = LoadTexture("../graphics/tiles.png", GL_RGBA);
 	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
+	GLuint particle_texture = LoadTexture("../graphics/fire.png", GL_RGBA);
+	special_effects->set_texture(particle_texture);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	level = new Level(level_texture, enemy_texture, program);
 	level->generate();
@@ -71,7 +73,7 @@ void GameApp::Setup(){
 	projectile_manager = new ProjectileManager(special_effects);
 	projectile_manager->set_light_manager(light_manager);
 	
-	player = Player(.2f, 10*.4f, 20*.4f, player_texture, program);
+	player = Player(.2f, level->get_x_spawn_position(), level->get_y_spawn_position(), player_texture, program);
 	player.set_hitbox(((66.0f/92.0f)*.2f)-.05, .2f);
 	player.set_audio(audio);
 	player.set_effects(special_effects);

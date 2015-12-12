@@ -8,5 +8,6 @@ public:
 	Vector position;
 	Vector velocity;
 	float lifetime =0.0f;
+	float rotation = 0.0f;
 	Color color_deviation;
 };
