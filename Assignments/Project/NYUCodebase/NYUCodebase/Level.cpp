@@ -26,46 +26,343 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 	}
 }
 
-TerrainTile Level::convert_byte(int y, int x, unsigned char byte){
-	float sheet_width = 256.0f;
-	float sheet_height = 256.0f;
-	TerrainTile tile;
-	//tile.exists = false;
-	/*<TextureAtlas imagePath = "sprites.png">
-		<SubTexture name = "tile2.png" x = "0" y = "144" width = "70" height = "70" / >
-		<SubTexture name = "tile2grass.png" x = "72" y = "72" width = "70" height = "70" / >
-		<SubTexture name = "tile3.png" x = "72" y = "0" width = "70" height = "70" / >
-		<SubTexture name = "tile3grass.png" x = "72" y = "144" width = "70" height = "70" / >
-		<SubTexture name = "tile4.png" x = "0" y = "72" width = "70" height = "70" / >
-		<SubTexture name = "tile4grass.png" x = "0" y = "0" width = "70" height = "70" / >
-		< / TextureAtlas>*/
-	if (byte == (unsigned char)1){
-		int roll = rand() % 3;
-		//"stoneCenter.png" x="144" y="576" width="70" height="70"
-		Sheetposition position;
-		if (roll == 1){ position = Sheetposition(0.0f, 144.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		else if (roll == 2){  position = Sheetposition(72.0f, 0.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		else { position = Sheetposition(0.0f, 72.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		tile = TerrainTile(x*tilesize + tilesize/2, y*tilesize +tilesize/2, tile_texture, position, program);
-		tile.set_behaviors(true, true, true, true);
-		tile.set_exists(true);
-		tile.set_hitbox(tilesize, tilesize);
-		tile.set_hp(10);
+TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 
+	float sheet_width = 1024.0f;
+	float sheet_height = 1024.0f;
+	TerrainTile tile;
+	bool triggered = false;
+	float x = 0.0f;
+	float y = 0.0f;
+	if (byte == (unsigned char)1){
+		//bare stone
+		/*<SubTexture name = "tile2.png" x = "216" y = "432" width = "70" height = "70" / >
+		<SubTexture name = "tile3.png" x = "72" y = "360" width = "70" height = "70" / >
+		<SubTexture name = "tile4.png" x = "432" y = "0" width = "70" height = "70" / >*/
+		int roll = rand() % 3;
+		Sheetposition position;
+		if (roll == 1){ 
+			x=216.0f;
+			y = 432.0f;
+		}
+		else if (roll == 2){  
+			x = 72.0f;
+			y = 360.0f;
+		}
+		else { 
+			x = 432.0f;
+			y = 0.0f;
+		}
+		triggered = true;
 	}
 	else if (byte == (unsigned char)2){
-		//"stoneMid.png" x="72" y="432" width="70" height="70"
+		// grass on top
+		/*<SubTexture name = "tile3grass.png" x = "72" y = "288" width = "70" height = "70" / >
+		<SubTexture name = "tile2grass.png" x = "216" y = "360" width = "70" height = "70" / >
+		<SubTexture name = "tile4grass.png" x = "360" y = "432" width = "70" height = "70" / >*/
 		int roll = rand() % 3;
-		Sheetposition position;
-		if (roll == 1){ position = Sheetposition(72.0f, 72.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		else if (roll == 2){ position = Sheetposition(72.0f, 144.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		else { position = Sheetposition(0.0f, 0.0f, 70.0f, 70.0f, tilesize, sheet_width, sheet_height); }
-		tile = TerrainTile(x * tilesize + tilesize /2, y*tilesize + tilesize /2, tile_texture, position, program);
-		tile.set_behaviors(true, true , true, true);
-		tile.set_exists(true);
-		tile.set_hitbox(tilesize, tilesize);
-		tile.set_hp(10);
+		if (roll == 1){ 
+			x = 72.0f;
+			y = 288.0f;
+		}
+		else if (roll == 2){ 
+			x = 216.0f; 
+			y = 360.0f;
+		}
+		else { 
+			x = 360.0f;
+			y = 432.0f;
+		}
+		triggered = true;
 	}
+	else if (byte == (unsigned char)3){
+		// grass on bottom
+		/*<SubTexture name="tile4grassbottom.png" x="360" y="360" width="70" height="70"/>
+			<SubTexture name="tile3grassbottom.png" x="72" y="216" width="70" height="70"/>
+		<SubTexture name="tile2grassbottom.png" x="216" y="288" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){ 
+			x = 360.0f; 
+			y = 360.0f;
+		}
+		else if (roll == 2){ 
+			x=72.0f; 
+			y = 216.0f;
+		}
+		else {
+			x = 216.0f;
+			y = 288.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)4){
+		// grass on left
+		/*<SubTexture name="tile2grassleft.png" x="216" y="0" width="70" height="70"/>
+		<SubTexture name="tile3grassleft.png" x="0" y="432" width="70" height="70"/>
+		<SubTexture name="tile4grassleft.png" x="360" y="72" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 216.0f;
+			y = 0.0f;
+		}
+		else if (roll == 2){
+			x = 0.0f;
+			y = 432.0f;
+		}
+		else {
+			x = 360.0f;
+			y = 72.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)5){
+		// grass on right
+		/*<SubTexture name="tile4grassright.png" x="288" y="432" width="70" height="70"/>
+		<<SubTexture name="tile2grassright.png" x="144" y="432" width="70" height="70"/>
+		<SubTexture name="tile3grassright-.png" x="0" y="360" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 288.0f;
+			y = 432.0f;
+		}
+		else if (roll == 2){
+			x = 144.0f;
+			y = 432.0f;
+		}
+		else {
+			x = 0.0f;
+			y = 360.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)6){
+		// grass on top, left
+		/*<SubTexture name="tile2grasstopleft.png" x="144" y="0" width="70" height="70"/>
+		<SubTexture name="tile3grasstopleft.png" x="216" y="72" width="70" height="70"/>
+		<SubTexture name="tile4grasstopleft.png" x="288" y="72" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 144.0f;
+			y = 0.0f;
+		}
+		else if (roll == 2){
+			x = 216.0f;
+			y = 72.0f;
+		}
+		else {
+			x = 288.0f;
+			y = 72.0f;
+		}
+		triggered = true;
+	}
+
+	else if (byte == (unsigned char)7){
+		// grass on top, right
+		/*<SubTexture name="tile4grasstopright.png" x="288" y="0" width="70" height="70"/>
+		<SubTexture name="tile3grasstopright.png" x="432" y="72" width="70" height="70"/>
+		<SubTexture name="tile2grasstopright.png" x="72" y="432" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 288.0f;
+			y = 0.0f;
+		}
+		else if (roll == 2){
+			x = 432.0f;
+			y = 72.0f;
+		}
+		else {
+			x = 72.0f;
+			y = 432.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)8){
+		// grass on top, bottom
+		/*<SubTexture name="tile2grasstopbottom.png" x="144" y="288" width="70" height="70"/>
+		<SubTexture name="tile3grasstopbottom.png" x="0" y="216" width="70" height="70"/>
+		<SubTexture name="tile4grasstopbottom.png" x="288" y="360" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 144.0f;
+			y = 288.0f;
+		}
+		else if (roll == 2){
+			x = 0.0f;
+			y = 216.0f;
+		}
+		else {
+			x = 288.0f;
+			y = 360.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)9){
+		// grass on bottom, left 
+		/*<SubTexture name="tile4grassbottomleft.png" x="360" y="288" width="70" height="70"/>
+		<SubTexture name="tile3grassbottomleft.png" x="72" y="144" width="70" height="70"/>
+		<SubTexture name="tile2grassbottomleft.png" x="216" y="216" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 360.0f;
+			y = 288.0f;
+		}
+		else if (roll == 2){
+			x = 72.0f;
+			y = 144.0f;
+		}
+		else {
+			x = 216.0f;
+			y = 216.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)10){
+		// grass on bottom, right
+		/*<SubTexture name="tile2grassbottomright.png" x="216" y="144" width="70" height="70"/>
+		<SubTexture name="tile3grassbottomright.png" x="72" y="72" width="70" height="70"/>
+		<SubTexture name="tile4grassbottomright.png" x="360" y="144" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 216.0f;
+			y = 144.0f;
+		}
+		else if (roll == 2){
+			x = 72.0f;
+			y = 72.0f;
+		}
+		else {
+			x = 360.0f;
+			y = 144.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)11){
+		// grass on left, right
+		/*<SubTexture name="tile3grassrighteft.png" x="0" y="288" width="70" height="70"/>
+		<SubTexture name="tile4grassleftright.png" x="360" y="0" width="70" height="70"/>
+		SubTexture name="tile2grassrightleft.png" x="144" y="360" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 0.0f;
+			y = 288.0f;
+		}
+		else if (roll == 2){
+			x = 360.0f;
+			y = 0.0f;
+		}
+		else {
+			x = 144.0f;
+			y = 360.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)12){
+		// grass on top, left, right - NOT DONE
+		/*<SubTexture name="tile2grasstopleftright.png" x="0" y="586" width="70" height="70"/>
+	<SubTexture name="tile3grasstoprighteft.png" x="0" y="658" width="70" height="70"/>
+	<SubTexture name="tile4grasstopleftright.png" x="0" y="514" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 0.0f;
+			y = 586.0f;
+		}
+		else if (roll == 2){
+			x = 0.0f;
+			y = 658.0f;
+		}
+		else {
+			x = 0.0f;
+			y = 514.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)13){
+		// grass on top, left, bottom
+		/*<SubTexture name="tile2grasstopbottomleft.png" x="144" y="216" width="70" height="70"/>
+		<SubTexture name="tile3grasstopbottomleft.png" x="0" y="144" width="70" height="70"/>
+		<SubTexture name="tile4grasstopbottomleft.png" x="288" y="288" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 144.0f;
+			y = 216.0f;
+		}
+		else if (roll == 2){
+			x = 0.0f;
+			y = 144.0f;
+		}
+		else {
+			x = 288.0f;
+			y = 288.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)14){
+		// grass on top, right, bottom
+		/*<SubTexture name="tile4grasstopbottomright.png" x="288" y="216" width="70" height="70"/>
+		<<SubTexture name="tile3grasstopbottomright.png" x="0" y="72" width="70" height="70"/>
+		<SubTexture name="tile2grasstopbottomright.png" x="144" y="144" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 288.0f;
+			y = 216.0f;
+		}
+		else if (roll == 2){
+			x = 0.0f;
+			y = 72.0f;
+		}
+		else {
+			x = 144.0f;
+			y = 144.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)15){
+		// grass on bottom, left, right
+		/*<SubTexture name="tile2grassbottomrightleft.png" x="432" y="144" width="70" height="70"/>
+		<SubTexture name="tile3grassbottomrighteft.png" x="72" y="0" width="70" height="70"/>
+		<SubTexture name="tile4grassbottomleftright.png" x="360" y="216" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 432.0f;
+			y = 144.0f;
+		}
+		else if (roll == 2){
+			x = 72.0f;
+			y = 0.0f;
+		}
+		else {
+			x = 360.0f;
+			y = 216.0f;
+		}
+		triggered = true;
+	}
+	else if (byte == (unsigned char)16){
+		// grass on all sides
+		/*<SubTexture name="tile3grasstopbottomrightleft.png" x="0" y="0" width="70" height="70"/>
+		<SubTexture name="tile4grasstopbottomrightleft.png" x="288" y="144" width="70"
+		<<SubTexture name="tile2grasstopbottomrightleft.png" x="144" y="72" width="70" height="70"/>*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 0.0f;
+			y = 0.0f;
+		}
+		else if (roll == 2){
+			x = 288.0f;
+			y = 144.0f;
+		}
+		else {
+			x = 144.0f;
+			y = 72.0f;
+		}
+		triggered = true;
+	}
+	Sheetposition position;
+	position = Sheetposition(x, y, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
+	tile = TerrainTile(x_coord*tilesize + tilesize / 2, y_coord*tilesize + tilesize / 2, tile_texture, position, program);
+	tile.set_behaviors(true, true, true, true);
+	tile.set_exists(triggered);
+	tile.set_hitbox(tilesize, tilesize);
+	tile.set_hp(10);
 	return tile;
 }
 
@@ -196,7 +493,7 @@ void Level::form_platforms(int begin_x, int end_x, int begin_y, int end_y){
 		else { height = height + y_jump; }
 		attempted_platforms--;
 	}
-	/*
+	/*OLD METHOD, will probably delete
 	for (int i = begin_y + 1; i < end_y-1; i++){
 		for (int j = begin_x; j < end_x; j++){
 			if (terrain_save_map[i][j] != (unsigned char)1 && terrain_save_map[i][j] != (unsigned char)254 && 
@@ -305,13 +602,13 @@ void Level::split(int level, int max_depth, int begin_x, int end_x, int begin_y,
 
 void Level::build_horizontal_hall_and_room_left(int x, int y, int hallway_length, int room_width, int room_height){
 	for (int i = x; i > x - hallway_length; i--){
-		terrain_save_map[y][i] = (unsigned char)0;
-		terrain_save_map[y + 1][i] = (unsigned char)0;
-		terrain_save_map[y - 1][i] = (unsigned char)0;
+		terrain_save_map[y][i] = (unsigned char)200;
+		terrain_save_map[y + 1][i] = (unsigned char)200;
+		terrain_save_map[y - 1][i] = (unsigned char)200;
 	}
 	for (int i = x - hallway_length; i > x - hallway_length - room_width; i--){
 		for (int j = y - 1; j <= y + room_height; j++){
-			terrain_save_map[j][i] = (unsigned char)0;
+			terrain_save_map[j][i] = (unsigned char)200;
 		}
 	}
 	form_platforms(x - hallway_length - room_width + 1, x - hallway_length,  y - 1, y + room_height - 1);
@@ -366,13 +663,13 @@ bool Level::is_room_for_horizontal_hall_and_room_left(int x, int y, int hallway_
 }
 void Level::build_horizontal_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height){
 	for (int i = x; i < x + hallway_length; i++){
-		terrain_save_map[y][i] = (unsigned char)0;
-		terrain_save_map[y+1][i] = (unsigned char)0;
-		terrain_save_map[y - 1][i] = (unsigned char)0;
+		terrain_save_map[y][i] = (unsigned char)200;
+		terrain_save_map[y+1][i] = (unsigned char)200;
+		terrain_save_map[y - 1][i] = (unsigned char)200;
 	}
 	for (int i = x + hallway_length; i < x + hallway_length + room_width; i++){
 		for (int j = y - 1; j <= y + room_height; j++){
-			terrain_save_map[j][i] = (unsigned char)0;
+			terrain_save_map[j][i] = (unsigned char)200;
 		}
 	}
 	form_platforms(x + hallway_length, x + hallway_length + room_width - 1, y - 1, y + room_height -1);
@@ -409,13 +706,13 @@ void Level::build_horizontal_hall_and_room(int x, int y, int hallway_length, int
 
 void Level::build_vertical_hall_and_room(int x, int y, int hallway_length, int room_width, int room_height){
 	for (int i = y; i > y - hallway_length; i--){
-		terrain_save_map[i][x] = (unsigned char)0;
-		terrain_save_map[i][x+1] = (unsigned char)0;
-		terrain_save_map[i][x-1] = (unsigned char)0;
+		terrain_save_map[i][x] = (unsigned char)200;
+		terrain_save_map[i][x+1] = (unsigned char)200;
+		terrain_save_map[i][x-1] = (unsigned char)200;
 	}
 	for (int i = y - hallway_length; i > y - hallway_length - room_height; i--){
 	 	for (int j = x - 1; j < x + room_width; j++){
-			terrain_save_map[i][j] = (unsigned char)0;
+			terrain_save_map[i][j] = (unsigned char)200;
 		}
 	}
 	form_platforms(x - 1, x + room_width - 1, y - hallway_length - room_height +1 , y- hallway_length);
@@ -518,7 +815,7 @@ bool Level::is_room_for_vertical_hall_and_room(int x, int y, int hallway_length,
 	return true;
 }
 void Level::generate() {
-	/*
+	/*SIMPLE LEVEL GENERATION for testing stuff
 	int previous_floor= 10;
 	int length_counter = 0;
 	int floor = rand() % 20 +1;
@@ -681,6 +978,8 @@ void Level::generate() {
 			}
 		}
 	}*/
+
+
 	// ROOM GENERATION: METHOD 2
 
 // REMEMBER: 0, 0 is the bottom left (y counts up)
@@ -741,7 +1040,79 @@ void Level::generate() {
 		}
 	}
 	DBOUT("earliest cleared y: " << y2);
-
+		
+	//Covering things with grass
+	//1 =bare stone
+		//2=grass on top
+		//3= grass on bottom
+		//4= grass on left
+		//4= grass on right
+		//6=grass on top, left
+		//7= grass on top, right
+		//8 = grass on top, bottom
+		// 9= grass on bottom, left 
+		//10= grass on bottom, right
+		//11= grass on left, right
+		//12= grass on top, left, right
+		//13= grass on top, left, bottom
+		//14=grass on top, right, bottom
+		//15= grass on bottom, left, right
+		//16= grass on all sides
+	for (int i = 1; i < height - 1; i++){
+		for (int j = 1; j < width - 1; j++){
+			bool exposed_top = terrain_save_map[i + 1][j] == (unsigned char)200;
+			bool exposed_bottom = terrain_save_map[i - 1][j] == (unsigned char)200;
+			bool exposed_left = terrain_save_map[i][j - 1] == (unsigned char)200;
+			bool exposed_right = terrain_save_map[i][j + 1] == (unsigned char)200;
+			if (terrain_save_map[i][j] == (unsigned char)1){
+				if (exposed_top && exposed_bottom && exposed_right && exposed_left){
+					terrain_save_map[i][j] = (unsigned char)16;
+				}
+				else if (exposed_bottom && exposed_right && exposed_left){
+					terrain_save_map[i][j] = (unsigned char)15;
+				}
+				else if (exposed_bottom && exposed_right && exposed_top){
+					terrain_save_map[i][j] = (unsigned char)14;
+				}
+				else if (exposed_bottom && exposed_top && exposed_left){
+					terrain_save_map[i][j] = (unsigned char)13;
+				}
+				else if (exposed_top && exposed_right && exposed_left){
+					terrain_save_map[i][j] = (unsigned char)12;
+				}
+				else if (exposed_left && exposed_right){
+					terrain_save_map[i][j] = (unsigned char)11;
+				}
+				else if (exposed_bottom && exposed_right){
+					terrain_save_map[i][j] = (unsigned char)10;
+				}
+				else if (exposed_bottom && exposed_left){
+					terrain_save_map[i][j] = (unsigned char)9;
+				}
+				else if (exposed_bottom && exposed_top){
+					terrain_save_map[i][j] = (unsigned char)8;
+				}
+				else if (exposed_right && exposed_top){
+					terrain_save_map[i][j] = (unsigned char)7;
+				}
+				else if (exposed_left && exposed_top){
+					terrain_save_map[i][j] = (unsigned char)6;
+				}
+				else if (exposed_right){
+					terrain_save_map[i][j] = (unsigned char)5;
+				}
+				else if (exposed_left){
+					terrain_save_map[i][j] = (unsigned char)4;
+				}
+				else if (exposed_bottom){
+					terrain_save_map[i][j] = (unsigned char)3;
+				}
+				else if (exposed_top){
+					terrain_save_map[i][j] = (unsigned char)2;
+				}
+			}
+		}
+	}
 
 	//CAVE GENERATION
 	
@@ -818,6 +1189,8 @@ void Level::generate() {
 	*/
 	convert_byte_map();
 	for (int i = 0; i < height; i++){
+		
+		
 		for (int j = 0; j < width; j++){
 			if (!terrain_map[i][j].is_there() && rand() % 100 < 1){
 				//sprite_save_map[i][j] = (unsigned char)1;

@@ -25,16 +25,26 @@ public:
 		ambient_light[2] = 0.0;
 	}
 	void accept_light(Light* light) {
-		for (int i = 0; i < 32; i++){
-			if (lights[i]->is_dark()){
-				delete lights[i];
-				lights[i] = light;
-				i = 32;
+		active_lights.push_back(light);
+	}
+	void draw_lights(ShaderProgram* program, float player_x, float player_y){
+		for (int i = 0; i < j; i++){
+			lights[i] = new Light();
+		}
+		j = 0;
+		for (int i = 0; i < active_lights.size(); i++){
+			if (active_lights[i]->is_finished()){
+				delete active_lights[i];
+				active_lights.erase(active_lights.begin() + i);
+			}
+			else if (abs(active_lights[i]->position.get_x() - player_x) < 15 && abs(active_lights[i]->position.get_y() - player_y) < 15){
+				if (j < 32){
+					delete lights[j];
+					lights[j] = active_lights[i];
+					j++;
+				}
 			}
 		}
-	}
-	void draw_lights(ShaderProgram* program){
-
 
 		GLint lightPositionsUniform = glGetUniformLocation(program->programID, "lightPositions");
 		GLint lightColorsUniform = glGetUniformLocation(program->programID, "lightColors");
@@ -56,8 +66,11 @@ public:
 		glUniform2fv(lightPositionsUniform, 32, lightPositions);
 		glUniform3fv(lightColorsUniform, 32, lightColors);
 		glUniform3fv(brightUniform, 1, ambient_light);
+		
 	}
 private:
+	int j = 0;
 	Light* lights[32];
 	float ambient_light[3];
+	std::vector <Light*> active_lights;
 };

@@ -104,8 +104,10 @@ void GameApp::ProcessEvents(){
 		player.move_right();
 	}
 	if (keys[SDL_SCANCODE_UP]){ player.jump(); }
+	if (keys[SDL_SCANCODE_DOWN]){ player.down_key(); }
 	if (keys[SDL_SCANCODE_SPACE]) { player.shoot(); }
 	if (keys[SDL_SCANCODE_X]){ player.create_tile(); }
+	if (keys[SDL_SCANCODE_Z]){ player.Transform(); }
 	else {
 		player.idle();
 	}
@@ -198,7 +200,7 @@ void GameApp::RenderGamePlay() {
 	for (int i = 0; i < spawned_enemies.size(); i++){
 		spawned_enemies[i]->Draw();
 	}
-	light_manager->draw_lights(program);
+	light_manager->draw_lights(program, player.get_x(), player.get_y());
 }
 
 bool GameApp::UpdateAndRender(){

@@ -84,6 +84,10 @@ void Sprite::update(float time_elapsed, Level* level){
 	if (acceleration.get_x() > maximum_acceleration){ acceleration.set_x(maximum_acceleration); }
 	if (acceleration.get_x() < -maximum_acceleration) {acceleration.set_x(-maximum_acceleration); }
 	if (abs(velocity.get_x()) < minimum_velocity) { velocity.set_x(0); }
+	if (velocity.get_y() < -maximum_y_velocity) { velocity.set_y(-maximum_y_velocity); }
+	if (velocity.get_y() > maximum_y_velocity) { velocity.set_y(maximum_y_velocity); }
+
+	//if (abs(velocity.get_y()) < minimum_velocity) { velocity.set_y(0); }
 	if (velocity.get_y() < 0 && bottom_flag){ velocity.set_y(0); }
 	if (velocity.get_y() > 0 && top_flag){ velocity.set_y(0); }
 	if (velocity.get_x() < 0 && left_flag){ velocity.set_x(0); }

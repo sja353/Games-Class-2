@@ -46,11 +46,12 @@ protected:
 	float width = 0.0f;
 	float height= 0.0f;
 	float acceleration_decay = 25.0;
+	float maximum_y_velocity = 10.0;
 	SheetSprite spritesheet;
 	Sheetposition sprite;
 	
 	float acceleration_rate = 4.0;
-	float minimum_velocity = .01;
+	float minimum_velocity = .01f;
 	float maximum_acceleration = 80.0;
 	bool Collides(Entity* other);
 	void stretch(){

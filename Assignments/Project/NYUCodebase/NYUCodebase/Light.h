@@ -3,7 +3,7 @@
 #include "Color.h"
 class Light{
 public:
-	bool is_dark(){
+	bool is_finished(){
 		return is_off;
 	}
 	Light(){
