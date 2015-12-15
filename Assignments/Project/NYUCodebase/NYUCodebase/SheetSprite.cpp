@@ -22,7 +22,7 @@ void SheetSprite::Draw(ShaderProgram* program){
 	
 	u_plus = position.u + position.width;
 	v_plus = position.v + position.height;
-	aspect = position.width / position.height;
+	aspect = position.aspect;
 	x = 0.5f*aspect*position.size;
 	y = 0.5f*position.size;
 	

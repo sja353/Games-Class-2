@@ -38,14 +38,22 @@ void Sprite::calculate_y_terrain_collisions(Level* level){
 	}
 	if (upper_tile.is_there() && upper_tile.bottom_is_solid() && this->Collides(&upper_tile)){
 		this->FixYPenetration(&upper_tile);
-		top_flag = true;
+		top_flag = true;	
 		velocity.set_y(0);
+		if (upper_tile.damage_bottom()){
+			hurt_from_top = true;
+			hurt_from_tile(upper_tile.get_damage());
+		}
 	}
 	else{ top_flag = false; }
 	if (lower_tile.is_there() && lower_tile.top_is_solid() && this->Collides(&lower_tile) && !(velocity.get_y() > 0)){
 		this->FixYPenetration(&lower_tile);
 		bottom_flag = true;
 		velocity.set_y(0);
+		if (lower_tile.damage_top()){
+			hurt_from_bottom = true;
+			hurt_from_tile(lower_tile.get_damage());
+		}
 	}
 	else { bottom_flag = false; }
 }
@@ -65,12 +73,20 @@ void Sprite::calculate_x_terrain_collisions(Level* level){
 		this->FixXPenetration(&left_tile);
 		left_flag = true;
 		velocity.set_x(0);
+		if (left_tile.damage_right()){
+			hurt_from_left = true;
+			hurt_from_tile(left_tile.get_damage());
+		}
 	}
 	else { left_flag = false; }
 	if (right_tile.is_there() && right_tile.left_is_solid() && this->Collides(&right_tile)){
 		this->FixXPenetration(&right_tile);
 		right_flag = true;
 		velocity.set_x(0);
+		if (right_tile.damage_left()){
+			hurt_from_right = true;
+			hurt_from_tile(right_tile.get_damage());
+		}
 	}
 	else { right_flag = false; }
 	

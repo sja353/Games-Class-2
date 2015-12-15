@@ -11,5 +11,6 @@ public:
 	float width;
 	float height;
 	float size;
+	float aspect;
 };
 #endif

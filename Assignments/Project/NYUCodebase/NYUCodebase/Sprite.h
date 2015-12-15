@@ -16,7 +16,7 @@ public:
 	void update(float time_elapsed, Level* level);
 	void calculate_x_terrain_collisions(Level* level);
 	void calculate_y_terrain_collisions(Level* level);
-	
+	virtual void hurt_from_tile(int damage){}
 	//Getters/setters
 	int get_x_tile_position(float tilesize);
 	int get_y_tile_position(float tilesize);
@@ -31,6 +31,7 @@ public:
 protected:
 	// Collision flags
 	bool top_flag, bottom_flag, left_flag, right_flag;
+	bool hurt_from_top = false, hurt_from_bottom = false, hurt_from_left=false, hurt_from_right=false;
 	//Animation stuff-maybe move to child classes?
 	float animation_time=0; //common to all derived classes
 	float animation_counter = 0; // common

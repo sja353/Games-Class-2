@@ -3,6 +3,7 @@
 #include "LevelScene.h"
 #include "ProjectileManager.h"
 #include "LightManager.h"
+#include "InfoOverlay.h"
 using namespace std;
 class GameApp {
 public:
@@ -53,6 +54,7 @@ private:
 	SpecialEffects* special_effects;
 	enum {MAIN_MENU, GAMEPLAY, GAME_OVER};
 	int state;
+	InfoOverlay info_overlay;
 	
 	//testing
 	int count = 0;

@@ -33,13 +33,14 @@ void Entity::UpdateY(float time_elapsed){
 }
 
 void Entity::Draw(){
+	modelMatrix.identity();
 	spritesheet.set_position(sprite);
 	modelMatrix.Translate(position.get_x(), position.get_y(), 0);
 	if (mirrored){ modelMatrix.Scale(-1.0, 1.0, 0.0); }
 	if (stretchy){ stretch(); }
 	program->setModelMatrix(modelMatrix);
 	spritesheet.Draw(program);
-	modelMatrix.identity();
+
 }
 bool Entity::Collides(Entity* other){
 	return (abs(position.get_x() - other->get_x()) * 2 <= (width + other->width) && 

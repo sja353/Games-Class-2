@@ -28,12 +28,18 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 
 TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 
-	float sheet_width = 1024.0f;
-	float sheet_height = 1024.0f;
+	float sheet_width = 1026.0f;
+	float sheet_height = 1098.0f;
 	TerrainTile tile;
 	bool triggered = false;
 	float x = 0.0f;
 	float y = 0.0f;
+	bool is_lit = false;
+	Light*light;
+	bool hurts_top, hurts_bottom, hurts_right, hurts_left;
+	hurts_top = hurts_bottom = hurts_right = hurts_left = false;
+	bool destructible = true;
+	int damage = 0;
 	if (byte == (unsigned char)1){
 		//bare stone
 		/*<SubTexture name = "tile2.png" x = "216" y = "432" width = "70" height = "70" / >
@@ -356,13 +362,50 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 		}
 		triggered = true;
 	}
+	else if (byte == (unsigned char)17){
+		// spike on top tile
+		//<SubTexture name="spiketile.png" x="0" y="1026" width="70" height="70"/>
+		x = 0.0f;
+		y = 1026.0f;
+		triggered = true;
+		hurts_top = true;
+		damage = 1;
+	}
+	else if (byte == (unsigned char)18){
+		// burnt tile
+		//<SubTexture name="burnttile.png" x="72" y="1026" width="70" height="70"/>
+		x = 72.0f;
+		y = 1026.0f;
+		triggered = true;
+		destructible = false;
+	}
+	else if (byte == (unsigned char)19) {
+		// lava tile 
+		//	<SubTexture name="lavatile.png" x="144" y="1026" width="70" height="70"/>
+		x = 144.0f;
+		y = 1026.0f;
+		triggered = true;
+		hurts_top = hurts_bottom = hurts_right = hurts_left = true;
+		damage = 2;
+		destructible = false;
+	}
+	else if (byte == (unsigned char)20){
+		// skull tile
+		//<SubTexture name="skull.png" x="216" y="1026" width="70" height="70"/>
+		x = 216.0f;
+		y = 1026.0f;
+		triggered = true;
+	}
 	Sheetposition position;
 	position = Sheetposition(x, y, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
 	tile = TerrainTile(x_coord*tilesize + tilesize / 2, y_coord*tilesize + tilesize / 2, tile_texture, position, program);
 	tile.set_behaviors(true, true, true, true);
+	tile.set_harmful_behaviors(hurts_top, hurts_bottom, hurts_right, hurts_left);
 	tile.set_exists(triggered);
 	tile.set_hitbox(tilesize, tilesize);
 	tile.set_hp(10);
+	tile.set_damage(damage);
+	tile.set_destructible(destructible);
 	return tile;
 }
 
@@ -386,6 +429,9 @@ void Level::render(int player_x, int player_y){
 				terrain_map[i][j].set_exists(false); 
 			}
 			if (terrain_map[i][j].is_there()){
+				if (terrain_map[i][j].is_lit()){
+					terrain_map[i][j].set_light_active();
+				}
 				float u_plus = terrain_map[i][j].get_sheet_position().u + terrain_map[i][j].get_sheet_position().width;
 				float v_plus = terrain_map[i][j].get_sheet_position().v + terrain_map[i][j].get_sheet_position().height;
 				float aspect = terrain_map[i][j].get_sheet_position().width / terrain_map[i][j].get_sheet_position().height;
@@ -458,13 +504,13 @@ void Level::modify_tile(int x, int y, unsigned char type){
 void Level::form_platforms(int begin_x, int end_x, int begin_y, int end_y){
 	// ASSUME ALL BLOCKS PASSED IN ARE CLEAR
 	int attempted_platforms = 10;
-	int left_edge = rand() % ((end_x - begin_x)/2) + begin_x ;
+	int left_edge = rand() % ((end_x - begin_x)/2) + begin_x +1;
 	int platform_length = rand() % 5 + 3;
 	int right_edge; 
 	int height = begin_y+ 1;
 	while (attempted_platforms > 0){
 		int count = left_edge;
-		while (count <= end_x && platform_length > 0){
+		while (count <= end_x-1 && platform_length > 0){
 			terrain_save_map[height][count] = (unsigned char)1;
 			count++;
 			platform_length--;
@@ -487,7 +533,7 @@ void Level::form_platforms(int begin_x, int end_x, int begin_y, int end_y){
 		}
 		left_edge = attempted_left_edge;
 		int y_jump = rand() % 2 + 1;
-		if (height + y_jump > end_y){
+		if (height + y_jump >= end_y -1){
 			height = height - y_jump * 2;
 		}
 		else { height = height + y_jump; }
@@ -595,9 +641,6 @@ void Level::split(int level, int max_depth, int begin_x, int end_x, int begin_y,
 		split(level, max_depth, dividing_line + wall_thickness + 1, end_x, begin_y, end_y);
 	}
 }
-
-
-
 
 
 void Level::build_horizontal_hall_and_room_left(int x, int y, int hallway_length, int room_width, int room_height){
@@ -1016,6 +1059,7 @@ void Level::generate() {
 
 	x_spawn = (float)x * tilesize;
 	y_spawn = (float)y*tilesize;
+	
 	int hallway_length = 20;
 	max_room_width = 20;
 	min_room_width = 15;
@@ -1058,6 +1102,43 @@ void Level::generate() {
 		//14=grass on top, right, bottom
 		//15= grass on bottom, left, right
 		//16= grass on all sides
+		//17 = spike on top
+		//18 = burnt
+		// 19 = lava
+		// 20 = skull
+		// 2, 6, 7, 8, 12, 13, 14, 16
+
+	// forming lava pools
+
+	Light* light;
+	for (int i = 0; i < height - 1; i++){
+		for (int j = 1; j < width - 1; j++){
+			int roll = rand() % 3 + 1;
+			if (terrain_save_map[i][j] == (unsigned char)1 && is_room_for_lava_pool(i, j + 1, roll) && rand() % 100 < 10){
+				terrain_save_map[i][j] = (unsigned char)18;
+				terrain_save_map[i-1][j] = (unsigned char)18;
+				for (int k = 1; k <= roll; k++){
+					terrain_save_map[i][j+k] = (unsigned char)19;
+					terrain_save_map[i - 1][j+k] = (unsigned char)18;
+				}
+				terrain_save_map[i][j + roll + 1] = (unsigned char)18;
+				terrain_save_map[i - 1][j+roll+1] = (unsigned char)18;
+				float light_location = (float)(((float)roll / 2) + (float)j + 1)*tilesize;
+				light = new Light();
+				light->a = .5;
+				light->b = 1;
+				light->position.set_x(light_location);
+				light->position.set_y((float)i*tilesize);
+				light->tint.r = 1.0;
+				light->tint.g = 0.0;
+				light->tint.b = 0.0;
+				light->tint.a = 1.0;
+				light->is_off = false;
+				light_manager->accept_light(light);
+			}
+			
+		}
+	}
 	for (int i = 1; i < height - 1; i++){
 		for (int j = 1; j < width - 1; j++){
 			bool exposed_top = terrain_save_map[i + 1][j] == (unsigned char)200;
@@ -1110,6 +1191,13 @@ void Level::generate() {
 				else if (exposed_top){
 					terrain_save_map[i][j] = (unsigned char)2;
 				}
+			}// 2, 6, 7, 8, 12, 13, 14, 16
+			if ((terrain_save_map[i][j] == (unsigned char)2 || terrain_save_map[i][j] == (unsigned char)6 ||
+				terrain_save_map[i][j] == (unsigned char)7 || terrain_save_map[i][j] == (unsigned char)8 ||
+				terrain_save_map[i][j] == (unsigned char)12 || terrain_save_map[i][j] == (unsigned char)13 ||
+				terrain_save_map[i][j] == (unsigned char)14 || terrain_save_map[i][j] == (unsigned char)16) &&
+				rand() % 100 < 10){
+				terrain_save_map[i][j] = (unsigned char)17;
 			}
 		}
 	}

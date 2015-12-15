@@ -11,6 +11,6 @@ public:
 		this->level = level;
 	}
 	void add_tile(int x, int y){
-		level->modify_tile(x, y, unsigned char(1));
+		level->modify_tile(x, y, unsigned char(20));
 	}
 };

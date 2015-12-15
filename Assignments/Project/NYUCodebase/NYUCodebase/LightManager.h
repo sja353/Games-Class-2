@@ -5,7 +5,7 @@
    os_ << s;                   \
    OutputDebugString( os_.str().c_str() );  \
 }
-
+#include <vector>
 #include "Light.h"
 #include "ShaderProgram.h"
 class LightManager{
@@ -37,8 +37,8 @@ public:
 				delete active_lights[i];
 				active_lights.erase(active_lights.begin() + i);
 			}
-			else if (abs(active_lights[i]->position.get_x() - player_x) < 15 && abs(active_lights[i]->position.get_y() - player_y) < 15){
-				if (j < 32){
+			else if (abs(active_lights[i]->position.get_x() - player_x) < 5 && abs(active_lights[i]->position.get_y() - player_y) < 5){
+				if (j < 32 && !active_lights[i]->is_dark()){
 					delete lights[j];
 					lights[j] = active_lights[i];
 					j++;
@@ -72,5 +72,5 @@ private:
 	int j = 0;
 	Light* lights[32];
 	float ambient_light[3];
-	std::vector <Light*> active_lights;
+	std::vector<Light*> active_lights;
 };

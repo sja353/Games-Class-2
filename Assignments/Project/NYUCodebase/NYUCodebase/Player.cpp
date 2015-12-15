@@ -8,6 +8,8 @@
 }
 
 Player::Player(float size, float x_position, float y_position, int texture, ShaderProgram* program){
+	current_health = max_health = 50;
+	current_mana = max_mana = 75;
 	stretchy = true;
 	this->program = program;
 	position.set_x(x_position);
@@ -79,6 +81,8 @@ void Player::Transform(){
 			stretchy = true;
 		}
 		else{
+			velocity.set_y(0);
+			acceleration.set_y(0);
 			time_since_transformed = 0.0f;
 			transform_timer = 0.0;
 			transformed = true;

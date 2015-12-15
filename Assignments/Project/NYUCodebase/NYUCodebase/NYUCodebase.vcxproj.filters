@@ -43,6 +43,9 @@
     <Filter Include="Header Files\Projectiles">
       <UniqueIdentifier>{500dd1e7-f5cc-4214-8c3f-b50f50e21612}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Overlays">
+      <UniqueIdentifier>{6ceb07be-9a93-4506-ad2b-84cd11dfd160}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -167,6 +170,18 @@
     <ClInclude Include="RedMonster.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
+    <ClInclude Include="TextDrawer.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="InfoOverlay.h">
+      <Filter>Header Files\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainObject.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="LavaTile.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragments2.glsl">
@@ -182,6 +197,12 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="vertex_textured_lights.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="fragment_textured.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="vertex_textured.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

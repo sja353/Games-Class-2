@@ -46,6 +46,7 @@ void GameApp::Setup(){
 	glViewport(0, 0, 1280, 720);
     program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured_lights.glsl", RESOURCE_FOLDER"fragment_textured_lights.glsl");
 	ShaderProgram* program2 = new ShaderProgram(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragments2.glsl");
+	ShaderProgram* program3 = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 	glUseProgram(program->programID);
 	
 	float x = 3.55f;
@@ -64,17 +65,22 @@ void GameApp::Setup(){
 	GLuint level_texture = LoadTexture("../graphics/tiles.png", GL_RGBA);
 	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
 	GLuint particle_texture = LoadTexture("../graphics/fire.png", GL_RGBA);
+	GLuint overlay_texture = LoadTexture("../graphics/overlay.png", GL_RGBA);
+	GLuint font_texture = LoadTexture("../graphics/TEXT.png", GL_RGBA);
+	info_overlay = InfoOverlay(overlay_texture, font_texture, program);
 	special_effects->set_texture(particle_texture);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
-	level = new Level(level_texture, enemy_texture, program);
-	level->generate();
+	
 	light_manager = new LightManager();
 	light_manager->initialize();
+	level = new Level(level_texture, enemy_texture, program);
+	level->set_light_manager(light_manager);
+	level->generate();
 	projectile_manager = new ProjectileManager(special_effects);
 	projectile_manager->set_light_manager(light_manager);
 	
-	player = Player(.2f, level->get_x_spawn_position(), level->get_y_spawn_position(), player_texture, program);
-	player.set_hitbox(((66.0f/92.0f)*.2f)-.05, .2f);
+	player = Player(.3f, level->get_x_spawn_position(), level->get_y_spawn_position(), player_texture, program);
+	player.set_hitbox(((66.0f/92.0f)*.3f)-.05, .3f);
 	player.set_audio(audio);
 	player.set_effects(special_effects);
 	player.set_projectile_manager(projectile_manager);
@@ -201,6 +207,8 @@ void GameApp::RenderGamePlay() {
 		spawned_enemies[i]->Draw();
 	}
 	light_manager->draw_lights(program, player.get_x(), player.get_y());
+	info_overlay.DrawOverlay(player.get_current_health(), player.get_max_health(),
+		player.get_current_mana(), player.get_max_mana(), player.get_position_vector());
 }
 
 bool GameApp::UpdateAndRender(){
@@ -240,46 +248,6 @@ GLuint GameApp::LoadTexture(const char* image_path, int img_type){
 	return textureID;
 }
 
-void GameApp::Drawtext(int fontTexture, std::string text, float size, float spacing){
-	float texture_size = 1.0 / 16.0f;
-	std::vector<float> vertexData;
-	std::vector<float> texCoordData;
-	
-	for (int i = 0; i < text.size(); i++){
-		float texture_x = (float)(((int)text[i]) % 16) / 16.0f;
-		float texture_y = (float)(((int)text[i]) / 16) / 16.0f;
-
-		vertexData.insert(vertexData.end(), {
-			((size + spacing)*i) + (-0.5f * size), 0.5f *size,
-			((size + spacing)*i) + (-0.5f * size), -0.5f *size,
-			((size + spacing)*i) + (0.5f * size), 0.5f *size,
-			((size + spacing)*i) + (0.5f * size), -0.5f *size,
-			((size + spacing)*i) + (0.5f * size), 0.5f *size,
-			((size + spacing)*i) + (-0.5f * size), -0.5f *size,
-		});
-
-		texCoordData.insert(texCoordData.end(), {
-			texture_x, texture_y,
-			texture_x, texture_y + texture_size,
-			texture_x + texture_size, texture_y,
-			texture_x + texture_size, texture_y + texture_size,
-			texture_x + texture_size, texture_y ,
-			texture_x, texture_y + texture_size,
-
-		});
-	}
-
-	//glUseProgram(program->programID);
-	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
-	glEnableVertexAttribArray(program->positionAttribute);
-	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
-	glEnableVertexAttribArray(program->texCoordAttribute);
-	glBindTexture(GL_TEXTURE_2D, fontTexture);
-	glDrawArrays(GL_TRIANGLES, 0, text.size() * 6);
-
-	glDisableVertexAttribArray(program->positionAttribute);
-	glDisableVertexAttribArray(program->texCoordAttribute);
-}
 
 void GameApp::DrawBackGround(){
 	modelMatrix.identity();

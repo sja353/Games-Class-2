@@ -36,10 +36,15 @@ public:
 	int get_hp(){ return hp; }
 	bool is_shot(Projectile* bullet);
 	Sheetposition get_sheet_position() { return sprite; }
+	Vector get_position_vector() { return position; }
+	void set_position_vector(Vector position){ this->position = position; }
+	void set_spritesheet(SheetSprite spritesheet){ this->spritesheet = spritesheet; }
+	void set_program(ShaderProgram* program){ this->program = program; }
+	void set_sprite(Sheetposition sprite){ this->sprite = sprite; }
 protected:
 	ShaderProgram* program;
 	Matrix modelMatrix;
-	bool mirrored;
+	bool mirrored = false;
 	Vector position, velocity, gravity, acceleration, friction;
 	float rotation =0.0f;
 	float size;

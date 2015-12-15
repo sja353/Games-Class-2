@@ -157,6 +157,9 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="GameApp.h" />
+    <ClInclude Include="LavaTile.h" />
+    <ClInclude Include="TerrainObject.h" />
+    <ClInclude Include="InfoOverlay.h" />
     <ClInclude Include="RedMonster.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelModifier.h" />
@@ -176,13 +179,16 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="TerrainTile.h" />
+    <ClInclude Include="TextDrawer.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
     <None Include="fragments2.glsl" />
+    <None Include="fragment_textured.glsl" />
     <None Include="fragment_textured_lights.glsl" />
     <None Include="vertex.glsl" />
+    <None Include="vertex_textured.glsl" />
     <None Include="vertex_textured_lights.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
