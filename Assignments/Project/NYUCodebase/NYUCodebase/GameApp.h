@@ -18,6 +18,10 @@ private:
 	
 	void Setup();
 	void ProcessEvents();
+	void ProcessGamePlayEvents();
+	void ProcessMenuEvents();
+	void ProcessGameOverEvents();
+	void ProcessPauseEvents();
 	void EnemyActions();
 	void Render();
 	void Update(float timestep);
@@ -26,9 +30,11 @@ private:
 	void RenderMainMenu();
 	void RenderGamePlay();
 	void RenderGameOver();
+	void RenderPause();
 	void UpdateMainMenu(float timestep);
 	void UpdateGamePlay(float timestep);
 	void UpdateGameOver(float timestep);
+	void UpdatePause(float timestep);
 	void DrawBackGround();
 
 
@@ -38,7 +44,7 @@ private:
 	Matrix projectionMatrix;
 	Matrix modelMatrix;
 	Matrix viewMatrix;
-	ShaderProgram* program;
+	ShaderProgram* program, *program2, *program3;
 	SDL_Event event;
 	const Uint8* keys;
 	const float FIXED_TIMESTEP = 0.01666666f;
@@ -52,13 +58,16 @@ private:
 	GLuint background;
 	Audio* audio;
 	SpecialEffects* special_effects;
-	enum {MAIN_MENU, GAMEPLAY, GAME_OVER};
+	enum {MAIN_MENU, GAMEPLAY, GAME_OVER, PAUSE};
 	int state;
 	InfoOverlay info_overlay;
-	
+	GLuint font_texture;
 	//testing
 	int count = 0;
 	ProjectileManager* projectile_manager;
 	LightManager* light_manager;
+	int menu_selection = 0;
+	float min_button_movement = .1f;
+	float button_movement_counter = 0.0f;
 };
 #endif

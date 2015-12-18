@@ -19,7 +19,7 @@ private:
 	Matrix *viewMatrix, *projectionMatrix;
 	Sheetposition shaded_ball, white_square, white_ball, white_smoke, rock_particle;
 public:
-	~SpecialEffects(){ delete program; }
+	~SpecialEffects(){  }
 	SpecialEffects(){}
 	void set_texture(GLuint texture){
 		this->texture = texture;

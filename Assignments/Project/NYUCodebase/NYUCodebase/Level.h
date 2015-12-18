@@ -51,7 +51,7 @@ public:
 		return true;
 	}
 	void generate(); 
-	void render(int player_x, int player_y);
+	void render(int player_x, int player_y, bool draw_level);
 	float get_tilesize(){ return tilesize; }
 	TerrainTile get_tile(int x, int y);
 	void Level::get_enemies_to_draw(std::vector<Enemy*>* enemies_list);

@@ -431,7 +431,7 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 	return tile;
 }
 
-void Level::render(int player_x, int player_y){
+void Level::render(int player_x, int player_y, bool draw_level){
 
 	//std::vector<TerrainTile> to_render;
 	std::vector<float> tile_vertices;
@@ -515,13 +515,13 @@ void Level::render(int player_x, int player_y){
 
 	//finish
 	glDrawArrays(GL_TRIANGLES, 0, background_tile_vertices.size()/2);
-	//glDisableVertexAttribArray(program->positionAttribute);
-	//glDisableVertexAttribArray(program->texCoordAttribute);
-	
+
+	if (draw_level){
+		glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, tile_vertices.data());
+		glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, tile_texcoords.data());
+		glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size() / 2);
+	}
 	//
-	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, tile_vertices.data());
-	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, tile_texcoords.data());
-	glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size() / 2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(program->texCoordAttribute);
 	//to_render.clear();

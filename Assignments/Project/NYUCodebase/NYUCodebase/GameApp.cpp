@@ -18,6 +18,8 @@ GameApp::~GameApp(){
 		spawned_enemies.erase(spawned_enemies.begin() + i);
 	}
 	delete program;
+	delete program2;
+	delete program3;
 	delete level;
 	delete projectile_manager;
 	delete audio;
@@ -53,8 +55,8 @@ void GameApp::Setup(){
 	#endif
 	glViewport(0, 0, 1280, 720);
     program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured_lights.glsl", RESOURCE_FOLDER"fragment_textured_lights.glsl");
-	ShaderProgram* program2 = new ShaderProgram(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragments2.glsl");
-	ShaderProgram* program3 = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+	program2 = new ShaderProgram(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragments2.glsl");
+	program3 = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 	glUseProgram(program3->programID);
 	
 	float x = 3.55f;
@@ -64,6 +66,7 @@ void GameApp::Setup(){
 	//program->setModelMatrix(modelMatrix);
 	program->setViewMatrix(viewMatrix);
 	program->setProjectionMatrix(projectionMatrix);
+	program->setModelMatrix(modelMatrix);
 	program2->setViewMatrix(viewMatrix);
 	program2->setProjectionMatrix(projectionMatrix);
 	program3->setViewMatrix(viewMatrix);
@@ -76,7 +79,7 @@ void GameApp::Setup(){
 	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
 	GLuint particle_texture = LoadTexture("../graphics/particles.png", GL_RGBA);
 	GLuint overlay_texture = LoadTexture("../graphics/overlay.png", GL_RGBA);
-	GLuint font_texture = LoadTexture("../graphics/TEXT.png", GL_RGBA);
+	font_texture = LoadTexture("../graphics/TEXT.png", GL_RGBA);
 	info_overlay = InfoOverlay(overlay_texture, font_texture, program3);
 	special_effects->set_texture(particle_texture);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
@@ -98,7 +101,7 @@ void GameApp::Setup(){
 	player.set_projectile_manager(projectile_manager);
 	player.set_level_modifier(level);
 	level->get_enemies_to_draw(&enemies);
-	state = GAMEPLAY;
+	state = MAIN_MENU;
 	audio->playMusic();
 	//DBOUT(slug.get_width());
 	//DBOUT(slug.get_height());
@@ -106,21 +109,15 @@ void GameApp::Setup(){
 
 }
 
-void GameApp::ProcessEvents(){
-	while (SDL_PollEvent(&event)){
-		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE){
-			done = true;
-		}
-	}
-	keys = SDL_GetKeyboardState(NULL);
+void GameApp::ProcessGamePlayEvents(){
 	if (keys[SDL_SCANCODE_LEFT] && state == GAMEPLAY){
 		player.move_left();
 	}
 	else if (keys[SDL_SCANCODE_RIGHT] && state == GAMEPLAY){
 		player.move_right();
 	}
-	if (keys[SDL_SCANCODE_UP]){ 
-		player.jump(); 
+	if (keys[SDL_SCANCODE_UP]){
+		player.jump();
 	}
 	if (keys[SDL_SCANCODE_DOWN]){ player.down_key(); }
 	if (keys[SDL_SCANCODE_SPACE]) { player.shoot(); }
@@ -129,8 +126,84 @@ void GameApp::ProcessEvents(){
 	else {
 		player.idle();
 	}
+	if (keys[SDL_SCANCODE_ESCAPE]) { state = PAUSE; }
+}
+
+void GameApp::ProcessPauseEvents(){
+	if (button_movement_counter > min_button_movement){
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 0){ state = GAMEPLAY; }
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 1) { state = MAIN_MENU; }
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 2) { done = true; }
+		if (keys[SDL_SCANCODE_UP] && menu_selection > 0){
+			menu_selection--;
+			audio->selectSound();
+		}
+		if (keys[SDL_SCANCODE_DOWN] && menu_selection < 2){
+			menu_selection++;
+			audio->selectSound();
+		}
+		button_movement_counter = 0.0f;
+	}
+}
+
+
+
+void GameApp::ProcessMenuEvents(){
+	if (button_movement_counter > min_button_movement) {
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 0){ state = GAMEPLAY; }
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 1) { done = true; }
+		if (keys[SDL_SCANCODE_UP] && menu_selection > 0){
+			menu_selection--;
+			audio->selectSound();
+		}
+		if (keys[SDL_SCANCODE_DOWN] && menu_selection < 1){
+			menu_selection++;
+			audio->selectSound();
+		}
+		button_movement_counter = 0.0f;
+	}
+}
+void GameApp::ProcessGameOverEvents(){
+	if (button_movement_counter > min_button_movement){
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 0){ state = MAIN_MENU; }
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 1) { done = true; }
+		if (keys[SDL_SCANCODE_UP] && menu_selection > 0){
+			menu_selection--;
+			audio->selectSound();
+		}
+		if (keys[SDL_SCANCODE_DOWN] && menu_selection < 1){
+			menu_selection++;
+			audio->selectSound();
+		}
+		button_movement_counter = 0.0f;
+	}
+}
+void GameApp::ProcessEvents(){
+	while (SDL_PollEvent(&event)){
+		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE){
+			done = true;
+		}
+	}
+	keys = SDL_GetKeyboardState(NULL);
+	switch (state){
+	case MAIN_MENU:
+		ProcessMenuEvents();
+		break;
+	case GAMEPLAY:
+		ProcessGamePlayEvents();
+		break;
+	case GAME_OVER:
+		ProcessGameOverEvents();
+		break;
+	case PAUSE:
+		ProcessPauseEvents();
+		break;
+	}
+	
 	//delete keys;
 }
+
+
 // Remember to add something here for erasing dead enemies from the vector
 void GameApp::EnemyActions(){
 	for (int i = 0; i < spawned_enemies.size(); i++){
@@ -140,6 +213,7 @@ void GameApp::EnemyActions(){
 
 
 void GameApp::Update(float timestep){
+	button_movement_counter += timestep;
 	audio->update(timestep);
 	switch (state){
 	case MAIN_MENU:
@@ -150,16 +224,15 @@ void GameApp::Update(float timestep){
 		break;
 	case GAME_OVER:
 		UpdateGameOver(timestep);
-	break;
+		break;
+	case PAUSE:
+		UpdatePause(timestep);
+		break;
 	}
 }
-
-void GameApp::UpdateMainMenu(float timestep){
-	}
-void GameApp::UpdateGameOver(float timestep){
-
-}
-
+void GameApp::UpdatePause(float timestep){}
+void GameApp::UpdateMainMenu(float timestep){}
+void GameApp::UpdateGameOver(float timestep){}
 void GameApp::UpdateGamePlay(float timestep){
 	projectile_manager->update(timestep, level);
 	player.update(timestep, level);
@@ -182,27 +255,141 @@ void GameApp::Render(){
 	switch (state){
 		case MAIN_MENU:
 			RenderMainMenu();
-		break;
+			break;
 		case GAMEPLAY:
 			RenderGamePlay();
-		break;
+			break;
 		case GAME_OVER:
 			RenderGameOver();
-		break;
+			break;
+		case PAUSE:
+			RenderPause();
+			break;
 	}
 	SDL_GL_SwapWindow(displayWindow);	
 }
 
 void GameApp::RenderMainMenu(){
+	viewMatrix.identity();
+	viewMatrix.Translate(-8.0, -8.0, 0);
+	program->setViewMatrix(viewMatrix);
+	program->setModelMatrix(modelMatrix);
+	light_manager->set_ambient_light(.4, 0.0, .5);
+	level->render(20, 20, false);
+	light_manager->draw_lights(8.0, 8.0);
+	//modelMatrix.Translate(6.0, 8.70, 0);
+	//program->setModelMatrix(modelMatrix);
+	float new_game_size = 0.3;
+	float quit_size = 0.3;
+	float new_game_start = -1.5;
+	float quit_start = -.3;
+	if (menu_selection == 0) {
+		new_game_size += .1;
+		new_game_start -= .5;
+	}
+	else if (menu_selection == 1) {
+		quit_size += .1;
+		quit_start-= .1;
+	}
+	
+	modelMatrix.identity();
+	modelMatrix.Translate(new_game_start, .5, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Start New Game", new_game_size, -.05, program3, -.1);
+	modelMatrix.identity();
+	modelMatrix.Translate(quit_start, 0, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Quit", quit_size, -.05, program3, -.1);
+	modelMatrix.identity();
+
 }
 
 void GameApp::RenderGameOver(){
+	viewMatrix.identity();
+	viewMatrix.Translate(-8.0, -8.0, 0);
+	program->setViewMatrix(viewMatrix);
+	program->setModelMatrix(modelMatrix);
+	light_manager->set_ambient_light(.4, 0.0, .5);
+	level->render(20, 20, false);
+	light_manager->draw_lights(8.0, 8.0);
+	//modelMatrix.Translate(6.0, 8.70, 0);
+	//program->setModelMatrix(modelMatrix);
+	float new_game_size = 0.3;
+	float quit_size = 0.3;
+	float new_game_start = -1.5;
+	float quit_start = -.3;
+	if (menu_selection == 0) {
+		new_game_size += .1;
+		new_game_start -= .5;
+	}
+	else if (menu_selection == 1) {
+		quit_size += .1;
+		quit_start -= .1;
+	}
+
+	modelMatrix.identity();
+	modelMatrix.Translate(new_game_start, .5, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Go to Main Menu", new_game_size, -.05, program3, -.1);
+	modelMatrix.identity();
+	modelMatrix.Translate(quit_start, 0, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Quit", quit_size, -.05, program3, -.1);
+	modelMatrix.identity();
+
+}
+void GameApp::RenderPause(){
+	viewMatrix.identity();
+	viewMatrix.Translate(-8.0, -8.0, 0);
+	program->setViewMatrix(viewMatrix);
+	program->setModelMatrix(modelMatrix);
+	light_manager->set_ambient_light(.4, 0.0, .5);
+	level->render(20, 20, false);
+	light_manager->draw_lights(8.0, 8.0);
+	//modelMatrix.Translate(6.0, 8.70, 0);
+	//program->setModelMatrix(modelMatrix);
+	float new_game_size = 0.3;
+	float quit_size = 0.3;
+	float new_game_start = -1.7;
+	float quit_start = -.3;
+	float unpause_size = 0.3;
+	float unpause_start = -.7;
+	if (menu_selection == 1) {
+		new_game_size += .1;
+		new_game_start -= .7;
+	}
+	else if (menu_selection == 2) {
+		quit_size += .1;
+		quit_start -= .1;
+	}
+
+	else if (menu_selection == 0){
+		unpause_size += .1;
+		unpause_start -= .2;
+	}
+	modelMatrix.identity();
+	modelMatrix.Translate(unpause_start, .5, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Unpause", unpause_size, -.05, program3, -.1);
+	modelMatrix.identity();
+	modelMatrix.Translate(new_game_start, 0, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Go to Main Menu", new_game_size, -.05, program3, -.1);
+	modelMatrix.identity();
+	modelMatrix.Translate(quit_start, -.5, 0);
+	program3->setModelMatrix(modelMatrix);
+	TextDrawer::Drawtext(font_texture, "Quit", quit_size, -.05, program3, -.1);
+	modelMatrix.identity();
 }
 
 void GameApp::RenderGamePlay() {
 	//DrawBackGround();
+	light_manager->set_ambient_light(.1, 0.3, 0.0);
+	viewMatrix.identity();
+	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.6, 0);
+	program->setViewMatrix(viewMatrix);	
 	program->setModelMatrix(modelMatrix);
-	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()));
+	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()), true);
 	projectile_manager->render();
 	special_effects->render(0);
 	for (int i = 0; i < enemies.size(); i++){
@@ -213,9 +400,6 @@ void GameApp::RenderGamePlay() {
 			enemies.erase(enemies.begin() + i);
 		}
 	}
-	viewMatrix.identity();
-	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.6, 0);
-	program->setViewMatrix(viewMatrix);
 	
 	player.Draw();
 	special_effects->render(1);
@@ -225,6 +409,7 @@ void GameApp::RenderGamePlay() {
 	light_manager->draw_lights(player.get_x(), player.get_y());
 	info_overlay.DrawOverlay(player.get_current_health(), player.get_max_health(),
 		player.get_current_mana(), player.get_max_mana(), player.get_position_vector());
+	if (player.get_current_health() < 0){ state = GAME_OVER; }
 }
 
 bool GameApp::UpdateAndRender(){

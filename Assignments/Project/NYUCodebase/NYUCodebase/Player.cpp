@@ -8,7 +8,7 @@
 }
 
 Player::Player(float size, float x_position, float y_position, int texture, ShaderProgram* program){
-	current_health = max_health = 50;
+	current_health = max_health = 10;
 	current_mana = max_mana = 75;
 	stretchy = true;
 	this->program = program;

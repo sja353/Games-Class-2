@@ -34,6 +34,12 @@ public:
 	void accept_light(Light* light) {
 		active_lights.push_back(light);
 	}
+
+	void set_ambient_light(float r, float g, float b){
+		ambient_light[0] = r;
+		ambient_light[1] = g;
+		ambient_light[2] = b;
+	}
 	void draw_lights(float player_x, float player_y){
 		for (int i = 0; i < j; i++){
 			lights[i] = new Light();

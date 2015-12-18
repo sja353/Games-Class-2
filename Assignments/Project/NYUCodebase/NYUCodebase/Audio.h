@@ -21,6 +21,7 @@ public:
 		shoot_sound = Mix_LoadWAV("../audio/shoot.wav");
 		negative_sound = Mix_LoadWAV("../audio/negative.wav");
 		transform_sound = Mix_LoadWAV("../audio/transform.wav");
+		select_sound = Mix_LoadWAV("../audio/select.wav");
 	}
 	void transformSound(){ 
 		if (breaktime_counter > min_breaktime){
@@ -64,14 +65,20 @@ public:
 			Mix_PlayChannel(-1, jump_sound, 0);
 		}
 	}
+	void selectSound(){
+		if (breaktime_counter > min_breaktime){
+			breaktime_counter = 0;
+			Mix_PlayChannel(-1, select_sound, 0);
+		}
+	}
 	void playMusic(){ Mix_PlayMusic(music, -1); }
 	void update(float time_elapsed){
 		breaktime_counter += time_elapsed;
 	}
 
 private:
-	Mix_Chunk *jump_sound, *hurt_sound, *death_sound, *break_sound, *shoot_sound, *negative_sound, *transform_sound;
+	Mix_Chunk *jump_sound, *hurt_sound, *death_sound, *break_sound, *shoot_sound, *negative_sound, *transform_sound, *select_sound;
 	Mix_Music *music;
-	float min_breaktime = .1f;
+	float min_breaktime = .05f;
 	float breaktime_counter = 0.0f;
 };
