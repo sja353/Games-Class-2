@@ -25,4 +25,8 @@ public:
 	float a, b;
 	bool is_off = true; 
 	bool is_inactive = false;
+
+	//testing
+
+	bool slug_light = false;
 };

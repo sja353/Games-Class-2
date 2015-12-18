@@ -11,7 +11,7 @@ public:
 	void move_right();
 	void move_left();
 	void jump();
-	void idle(){};
+	void idle();
 	//Update and collisions
 	void update(float time_elapsed, Level* level);
 	void calculate_x_terrain_collisions(Level* level);

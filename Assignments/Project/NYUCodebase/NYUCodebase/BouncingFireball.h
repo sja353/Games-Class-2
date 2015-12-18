@@ -32,7 +32,7 @@ public:
 		max_impacts = 10;
 		this->damage = damage;
 		this->acceleration = acceleration;
-		max_velocity = 10.0f;
+		max_velocity = 7.0f;
 		diameter = .1f;
 		max_lifetime = 5.0f;
 	}
@@ -69,6 +69,7 @@ private:
 					impacts++;
 					this_tile.set_hp(this_tile.get_hp() - damage);
 					level->set_tile(tile_x, tile_y, this_tile);
+					if (level->get_tile(tile_x, tile_y).get_hp() <= 0){ level->kill_tile(tile_x, tile_y); }
 				}
 			}
 			impact_made = true;
@@ -80,6 +81,7 @@ private:
 					impacts++;
 					upper_tile.set_hp(upper_tile.get_hp() - damage);
 					level->set_tile(tile_x, tile_y + 1, upper_tile);
+					if (level->get_tile(tile_x, tile_y+1).get_hp() <= 0){ level->kill_tile(tile_x, tile_y+1); }
 				}
 			}
 			impact_made = true;
@@ -91,6 +93,7 @@ private:
 					impacts++;
 					lower_tile.set_hp(lower_tile.get_hp() - damage);
 					level->set_tile(tile_x, tile_y - 1, lower_tile);
+					if (level->get_tile(tile_x, tile_y-1).get_hp() <= 0){ level->kill_tile(tile_x, tile_y-1); }
 				}
 			}
 			impact_made = true;
@@ -111,6 +114,7 @@ private:
 					impacts++;
 					this_tile.set_hp(this_tile.get_hp() - damage);
 					level->set_tile(tile_x, tile_y, this_tile);
+					if (level->get_tile(tile_x, tile_y).get_hp() <= 0){ level->kill_tile(tile_x, tile_y); }
 				}
 			}
 			impact_made = true;
@@ -123,6 +127,7 @@ private:
 					impacts++;
 					left_tile.set_hp(left_tile.get_hp() - damage);
 					level->set_tile(tile_x - 1, tile_y, left_tile);
+					if (level->get_tile(tile_x-1, tile_y).get_hp() <= 0){ level->kill_tile(tile_x-1, tile_y); }
 				}
 			}
 			impact_made = true;
@@ -134,6 +139,7 @@ private:
 					impacts++;
 					right_tile.set_hp(right_tile.get_hp() - damage);
 					level->set_tile(tile_x + 1, tile_y, right_tile);
+					if (level->get_tile(tile_x+1, tile_y).get_hp() <= 0){ level->kill_tile(tile_x+1, tile_y); }
 				}
 			}
 			impact_made = true;

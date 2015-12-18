@@ -31,6 +31,7 @@ public:
 	void shoot(){
 		if (!transformed){
 			if (shoot_timer > shoot_spacing){
+				audio->shootSound();
 				shoot_timer = 0.0f;
 				projectile_manager->shoot_fireball(position, mirrored);
 				projectile_manager->shoot_bouncing_fireball(position, mirrored);
@@ -52,24 +53,22 @@ public:
 	}
 
 	void hurt_from_tile(int damage) {
+		acceleration.set_y(0);
 		current_health -= damage;
+		audio->hurtSound();
 		if (hurt_from_top){ 
-			DBOUT("top");
 			hurt_from_top = false;
 			velocity.set_y(-hurt_jump);
 		}
 		else if (hurt_from_bottom){
-			DBOUT("bottom");
 			hurt_from_bottom = false;
 			velocity.set_y(hurt_jump);
 		}
 		else if (hurt_from_right){
-			DBOUT("right");
 			hurt_from_right = false;
 			velocity.set_x(-hurt_jump);
 		}
 		else if (hurt_from_left){
-			DBOUT("left");
 			hurt_from_left = false;
 			velocity.set_x(hurt_jump);
 		}
@@ -101,7 +100,7 @@ public:
 protected:
 	int max_health, current_health, max_mana, current_mana;
 	float size_storage, width_storage, height_storage;
-	float hurt_jump = 10.0;
+	float hurt_jump = 5.0;
 	float bat_acceleration = 2.0f;
 	int s = 1;
 	bool transformed = false;
@@ -118,5 +117,5 @@ protected:
 	float shoot_timer = 0.0f;
 	float shoot_spacing = .25f;
 	LevelModifier level_modifier;
-
+	
 };

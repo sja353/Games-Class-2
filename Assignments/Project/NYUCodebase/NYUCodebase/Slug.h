@@ -8,10 +8,12 @@
 class Slug : public Enemy{
 public:
 	~Slug(){
+		if (light != nullptr){ light->turn_off(); }
 		delete frames;
 	}
 	Slug(){}
-	Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program);
+	Slug(float size, float x_position, float y_position, int texture, 
+		ShaderProgram* program, float color_r, float color_g, float color_b, LightManager* light_manager);
 	void update(float time_elapsed, Level* level){
 		if (hp <= 0 && !dead) { die(); }
 		decide_frame();
@@ -25,6 +27,7 @@ public:
 		else { Sprite::update(time_elapsed, level); }
 	}
 	void die(){
+		light->turn_inactive();
 		audio->dieSound();
 		current_frame = death_frame;
 		dead = true;
@@ -55,8 +58,14 @@ public:
 		}
 		sprite = frames[current_frame];
 	}
+	void Draw(){
+		light->position.set_x(this->position.get_x());
+		light->position.set_y(this->position.get_y());
+		Entity::Draw();
+	}
 private:
 	float death_counter = 0.0f;
 	float death_time = 5.0f;
+	Light* light;
 };
 #endif

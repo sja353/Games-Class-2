@@ -14,13 +14,16 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
 			if (sprite_save_map[i][j] == (unsigned char)1){
-				//Slug* slug = new Slug(0.1f, j*tilesize, i*tilesize, enemy_texture, program);
-				//slug->set_hitbox(0.3f, 0.1f);
-				//enemy_list->push_back(slug);
-				RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
+				float r = (float)rand() / RAND_MAX;
+				float g = (float)rand() / RAND_MAX;
+				float b = (float)rand() / RAND_MAX;
+				Slug* slug = new Slug(0.2f, j*tilesize, i*tilesize, enemy_texture, program, r, g, b, light_manager);
+				slug->set_hitbox(0.3f, 0.2f);
+				enemy_list->push_back(slug);
+				//RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
 			
-				red_monster->set_hitbox(0.6f, 0.27f);
-				enemy_list->push_back(red_monster);
+				//red_monster->set_hitbox(0.6f, 0.27f);
+				//enemy_list->push_back(red_monster);
 			}
 		}
 	}
@@ -28,8 +31,8 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 
 TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 
-	float sheet_width = 1026.0f;
-	float sheet_height = 1098.0f;
+	float sheet_width = 1100.0f;
+	float sheet_height = 1100.0f;
 	TerrainTile tile;
 	bool triggered = false;
 	float x = 0.0f;
@@ -396,6 +399,25 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 		y = 1026.0f;
 		triggered = true;
 	}
+	else if (byte == (unsigned char)21){
+		//background
+			/*<SubTexture name = "background1.png" x = "1028" y = "0" width = "70" height = "70" / >
+			<SubTexture name = "background2.png" x = "1028" y = "72" width = "70" height = "70" / >
+			<SubTexture name = "background3.png" x = "1028" y = "144" width = "70" height = "70" / >*/
+		int roll = rand() % 3;
+		if (roll == 1){
+			x = 1028;
+			y = 0;
+		}
+		else if (roll == 2){
+			x = 1028;
+			y = 72;
+		}
+		else{
+			x = 1028;
+			y = 144;
+		}
+	}
 	Sheetposition position;
 	position = Sheetposition(x, y, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
 	tile = TerrainTile(x_coord*tilesize + tilesize / 2, y_coord*tilesize + tilesize / 2, tile_texture, position, program);
@@ -410,9 +432,12 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 }
 
 void Level::render(int player_x, int player_y){
+
 	//std::vector<TerrainTile> to_render;
 	std::vector<float> tile_vertices;
 	std::vector<float> tile_texcoords;
+	std::vector<float> background_tile_vertices;
+	std::vector<float> background_tile_texcoords;
 	int left_bound, right_bound, lower_bound, upper_bound;
 	int render_length = 15;
 	if (player_x - render_length < 0) { left_bound = 0; }
@@ -425,18 +450,31 @@ void Level::render(int player_x, int player_y){
 	else { upper_bound = player_y + render_length; }
 	for (int i = lower_bound; i < upper_bound; i++){
 		for (int j = left_bound; j < right_bound; j++){
-			if (terrain_map[i][j].get_hp() <= 0 && terrain_map[i][j].is_there()) {
-				terrain_map[i][j].set_exists(false); 
-			}
+			float u_plus_b = background_map[i][j].get_sheet_position().u + background_map[i][j].get_sheet_position().width;
+			float v_plus_b = background_map[i][j].get_sheet_position().v + background_map[i][j].get_sheet_position().height;
+			background_tile_texcoords.insert(background_tile_texcoords.end(), {
+				background_map[i][j].get_sheet_position().u, v_plus_b,
+				u_plus_b, background_map[i][j].get_sheet_position().v,
+				background_map[i][j].get_sheet_position().u, background_map[i][j].get_sheet_position().v,
+				u_plus_b, background_map[i][j].get_sheet_position().v,
+				background_map[i][j].get_sheet_position().u, v_plus_b,
+				u_plus_b, v_plus_b
+			});
+			background_tile_vertices.insert(background_tile_vertices.end(), {
+				tilesize*j, tilesize*i,
+				tilesize*j + tilesize, tilesize*i + tilesize,
+				tilesize*j, tilesize*i + tilesize,
+				tilesize*j + tilesize, tilesize*i + tilesize,
+				tilesize*j, tilesize*i,
+				tilesize*j + tilesize, tilesize*i
+			});
+			
 			if (terrain_map[i][j].is_there()){
-				if (terrain_map[i][j].is_lit()){
+				/*if (terrain_map[i][j].is_lit()){
 					terrain_map[i][j].set_light_active();
-				}
+				}*/
 				float u_plus = terrain_map[i][j].get_sheet_position().u + terrain_map[i][j].get_sheet_position().width;
 				float v_plus = terrain_map[i][j].get_sheet_position().v + terrain_map[i][j].get_sheet_position().height;
-				float aspect = terrain_map[i][j].get_sheet_position().width / terrain_map[i][j].get_sheet_position().height;
-				//float x = 0.5f*aspect*terrain_map[i][j].get_sheet_position().size;
-				//float y = 0.5f*terrain_map[i][j].get_sheet_position().size;
 				tile_texcoords.insert(tile_texcoords.end(), {
 					terrain_map[i][j].get_sheet_position().u, v_plus,
 					u_plus, terrain_map[i][j].get_sheet_position().v,
@@ -460,13 +498,14 @@ void Level::render(int player_x, int player_y){
 	}
 	
 	//glBindTexture(GL_TEXTURE_2D, tile_texture);
+	glUniform3fv(coloruniform, 1, color_shift);
 	glUseProgram(program->programID);
 	//triangles
-	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, tile_vertices.data());
+	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, background_tile_vertices.data());
 	glEnableVertexAttribArray(program->positionAttribute);
 
 	//texture
-	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, tile_texcoords.data());
+	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, background_tile_texcoords.data());
 	glEnableVertexAttribArray(program->texCoordAttribute);
 	glBindTexture(GL_TEXTURE_2D, tile_texture);
 
@@ -475,10 +514,16 @@ void Level::render(int player_x, int player_y){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//finish
-	glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size()/2);
+	glDrawArrays(GL_TRIANGLES, 0, background_tile_vertices.size()/2);
+	//glDisableVertexAttribArray(program->positionAttribute);
+	//glDisableVertexAttribArray(program->texCoordAttribute);
+	
+	//
+	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, tile_vertices.data());
+	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, tile_texcoords.data());
+	glDrawArrays(GL_TRIANGLES, 0, tile_vertices.size() / 2);
 	glDisableVertexAttribArray(program->positionAttribute);
 	glDisableVertexAttribArray(program->texCoordAttribute);
-	
 	//to_render.clear();
 }
 TerrainTile Level::get_tile(int x, int y){
@@ -495,6 +540,7 @@ void Level::set_tile(int x, int y, TerrainTile tile){
 
 void Level::modify_tile(int x, int y, unsigned char type){
 	if (!this->get_tile(x, y).is_there()){  
+		audio->transformSound();
 		TerrainTile tile = convert_byte(y, x, type);
 		terrain_map[y][x] = tile;
 	}
@@ -665,7 +711,7 @@ void Level::build_horizontal_hall_and_room_left(int x, int y, int hallway_length
 		build_horizontal_hall_and_room_left(new_x, new_y, new_hallway_length, new_room_width, new_room_height);
 	}
 	new_hallway_length = rand() % 10 + 5;
-	new_x = x + hallway_length + room_width / 2 + rand() % (room_width / 2) - 2;
+	new_x = x - hallway_length - room_width / 2 - rand() % (room_width / 2) + 2;
 	new_y = y - 2;
 	new_room_width = rand() % (max_room_width - min_room_width) + min_room_width;
 	new_room_height = rand() % (max_room_height - min_room_height) + min_room_height;
@@ -673,7 +719,7 @@ void Level::build_horizontal_hall_and_room_left(int x, int y, int hallway_length
 	int attempts = attempts_to_fit;
 	while (!is_room_vertical && attempts > 0){
 		new_hallway_length = rand() % 10 + 5;
-		new_x = x + hallway_length + room_width / 2 + rand() % (room_width / 2) - 2;
+		new_x = x - hallway_length - room_width / 2 - rand() % (room_width / 2) + 2;
 		new_y = y - 2;
 		new_room_width = rand() % (max_room_width - min_room_width) + min_room_width;
 		new_room_height = rand() % (max_room_height - min_room_height) + min_room_height;
@@ -726,7 +772,7 @@ void Level::build_horizontal_hall_and_room(int x, int y, int hallway_length, int
 		build_horizontal_hall_and_room(new_x, new_y, new_hallway_length, new_room_width, new_room_height);
 	}
 	new_hallway_length = rand() % 10 + 5;
-	new_x = x + hallway_length + room_width/2 + rand()% (room_width/2) - 2;
+	new_x = x + hallway_length + room_width / 2 + rand() % (room_width / 2) - 2;
 	new_y = y -2;
 	new_room_width = rand() % (max_room_width - min_room_width) + min_room_width;
 	new_room_height = rand() % (max_room_height - min_room_height) + min_room_height; 
@@ -799,7 +845,7 @@ void Level::build_vertical_hall_and_room(int x, int y, int hallway_length, int r
 	}
 	if (!make_horizontal_left && !make_horizontal){
 		new_hallway_length = rand() % 10 + 5;
-		new_x = x + room_width / 2 + rand() % (room_width / 2) - 2;
+		new_x = x + 2 + rand()%(room_width/2);
 		new_y = y - hallway_length - room_height;
 		new_room_width = rand() % (max_room_width - min_room_width) + min_room_width;
 		new_room_height = rand() % (max_room_height - min_room_height) + min_room_height;
@@ -807,7 +853,7 @@ void Level::build_vertical_hall_and_room(int x, int y, int hallway_length, int r
 		attempts = attempts_to_fit;
 		while (!is_room_vertical && attempts > 0){
 			new_hallway_length = rand() % 10 + 5;
-			new_x = x + room_width / 2 + rand() % (room_width / 2) - 2;
+			new_x = x +  rand() % (room_width / 2) + 2;
 			new_y = y - hallway_length - room_height;
 			new_room_width = rand() % (max_room_width - min_room_width) + min_room_width;
 			new_room_height = rand() % (max_room_height - min_room_height) + min_room_height;
@@ -1030,23 +1076,32 @@ void Level::generate() {
 	for (int i = 0; i < height; i++){
 		delete[] terrain_save_map[i];
 		delete[] terrain_map[i];
+		delete[] background_map[i];
 		delete[] sprite_save_map[i];
 	}
 	delete[] terrain_save_map;
 	delete[] terrain_map;
+	delete[] background_map;
 	delete[] sprite_save_map;
 	width = 500;
 	height = 300;
 	terrain_save_map = new unsigned char*[height];
 	terrain_map = new TerrainTile*[height];
+	background_map = new TerrainTile*[height];
 	sprite_save_map = new unsigned char*[height];
 
 	for (int i = 0; i < height; i++){
 		terrain_save_map[i] = new unsigned char[width];
 		terrain_map[i] = new TerrainTile[width];
+		background_map[i] = new TerrainTile[width];
 		sprite_save_map[i] = new unsigned char[width];
 	}
 
+	for (int i = 0; i < height; i++){
+		for (int j = 0; j < width; j++){
+			background_map[i][j] = convert_byte(i, j, (unsigned char)21);
+		}
+	}
 
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
@@ -1280,8 +1335,8 @@ void Level::generate() {
 		
 		
 		for (int j = 0; j < width; j++){
-			if (!terrain_map[i][j].is_there() && rand() % 100 < 1){
-				//sprite_save_map[i][j] = (unsigned char)1;
+			if (!terrain_map[i][j].is_there() && rand() % 1000 < 15){
+				sprite_save_map[i][j] = (unsigned char)1;
 			}
 		}
 	}

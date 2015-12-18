@@ -15,7 +15,7 @@ Player::Player(float size, float x_position, float y_position, int texture, Shad
 	position.set_x(x_position);
 	position.set_y(y_position);
 	this->size = size;
-	
+	coloruniform = glGetUniformLocation(program->programID, "color_shift");
 	// Animation stuff. Here, set the positions of the various sprites used, toss them in array
 	float sheet_width = 256;
 	float sheet_length = 512;
@@ -64,14 +64,25 @@ Player::Player(float size, float x_position, float y_position, int texture, Shad
 	
 	// physics stuff
 	bottom_flag = top_flag = right_flag = left_flag = false;
-	jump_velocity = 3.0;
-	acceleration_rate = 8.0;
+	jump_velocity = 3.5;
+	acceleration_rate = 17.5;
 	gravity.set_y(25.0);
-	friction.set_x(25.0);
+	friction.set_x(5.0);
 	friction.set_y(0);
 }
 void Player::Transform(){
 	if (time_since_transformed > min_transform_wait){
+		Color start_color;
+		start_color.r = 0;
+		start_color.g = 1.0;
+		start_color.b = 0;
+		start_color.a = 1.0;
+		Color end_color = start_color;
+		end_color.a = 0.0;
+		Color color_deviation;
+		color_deviation.a = 0.0;
+		audio->transformSound();
+		special_effects->smoke_puff(position, start_color, end_color, color_deviation);
 		if (transformed){
 			time_since_transformed = 0.0f;
 			transform_timer = 0.0;
@@ -92,6 +103,7 @@ void Player::Transform(){
 			stretchy = false;
 		}
 	}
+	else{ audio->negativeSound(); }
 }
 void Player::calculate_enemy_collision(Enemy* enemy){
 	if (this->Collides(enemy)){

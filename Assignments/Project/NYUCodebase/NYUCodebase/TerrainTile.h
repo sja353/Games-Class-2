@@ -52,6 +52,7 @@ public:
 	int get_damage() { return damage; }
 	void set_damage(int damage) { this->damage = damage; }
 	void set_destructible(bool destructible) { this->destructible = destructible; }
+	
 private:
 	bool top_solid, bottom_solid, right_solid, left_solid;
 	bool hurts_top = false, hurts_bottom = false, hurts_right = false, hurts_left = false;

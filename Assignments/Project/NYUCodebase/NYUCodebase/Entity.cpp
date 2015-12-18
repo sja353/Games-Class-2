@@ -35,6 +35,7 @@ void Entity::UpdateY(float time_elapsed){
 void Entity::Draw(){
 	modelMatrix.identity();
 	spritesheet.set_position(sprite);
+	glUniform3fv(coloruniform, 1, color_shift);
 	modelMatrix.Translate(position.get_x(), position.get_y(), 0);
 	if (mirrored){ modelMatrix.Scale(-1.0, 1.0, 0.0); }
 	if (stretchy){ stretch(); }

@@ -31,12 +31,12 @@ public:
 		mana.set_spritesheet(mana_sprite);
 	}
 	void DrawOverlay(int current_health, int max_health, int current_mana, int max_mana, Vector player_position){
-		Vector health_position = player_position;
-		Vector mana_position = player_position;
-		health_position.set_x(health_position.get_x() - 3.2);
-		health_position.set_y(health_position.get_y() + 2.0);
-		mana_position.set_x(mana_position.get_x() - 2.5);
-		mana_position.set_y(mana_position.get_y() + 2.0);
+		Vector health_position;
+		Vector mana_position;
+		health_position.set_x(0 - 3.2);
+		health_position.set_y(0 + 1.8);
+		mana_position.set_x(0 - 2.5);
+		mana_position.set_y(0 + 1.8);
 		
 		health.set_position_vector(health_position);
 		mana.set_position_vector(mana_position);

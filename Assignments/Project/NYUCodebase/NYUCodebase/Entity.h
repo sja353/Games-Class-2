@@ -14,7 +14,12 @@ class Projectile;
 
 class Entity {
 public:
-	void Draw();
+	Entity(){
+		color_shift[0] = 1.0;
+		color_shift[1] = 1.0;
+		color_shift[2] = 1.0;
+	}
+	virtual void Draw();
 	void UpdateX(float time_elapsed);
 	void UpdateY(float time_elapsed);
 	void FixXPenetration(Entity* other);
@@ -39,7 +44,10 @@ public:
 	Vector get_position_vector() { return position; }
 	void set_position_vector(Vector position){ this->position = position; }
 	void set_spritesheet(SheetSprite spritesheet){ this->spritesheet = spritesheet; }
-	void set_program(ShaderProgram* program){ this->program = program; }
+	void set_program(ShaderProgram* program){ 
+		this->program = program; 
+		coloruniform = glGetUniformLocation(program->programID, "color_shift");
+	}
 	void set_sprite(Sheetposition sprite){ this->sprite = sprite; }
 protected:
 	ShaderProgram* program;
@@ -54,7 +62,7 @@ protected:
 	float maximum_y_velocity = 10.0;
 	SheetSprite spritesheet;
 	Sheetposition sprite;
-	
+	float color_shift[3];
 	float acceleration_rate = 4.0;
 	float minimum_velocity = .01f;
 	float maximum_acceleration = 80.0;
@@ -66,7 +74,7 @@ protected:
 	float lerp(float v0, float v1, float t);
 	SpecialEffects* special_effects;
 	ProjectileManager* projectile_manager;
-
+	GLuint coloruniform;
 	Audio* audio;
 	int hp = 0;
 };

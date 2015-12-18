@@ -1,9 +1,26 @@
 #include "Slug.h"
-Slug::Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program){
+Slug::Slug(float size, float x_position, float y_position, int texture, ShaderProgram* program, 
+	float color_r, float color_g, float color_b, LightManager* light_manager){
 	this->program = program;
 	position.set_x(x_position);
 	position.set_y(y_position);
 	this->size = size;
+	color_shift[0] = color_r;
+	color_shift[1] = color_g;
+	color_shift[2] = color_b;
+	coloruniform = glGetUniformLocation(program->programID, "color_shift");
+	light = new Light();
+	light->a = .15;
+	light->b = 2;
+	light->position.set_x(x_position);
+	light->position.set_y(y_position);
+	light->tint.r = color_r;
+	light->tint.g = color_g;
+	light->tint.b = color_b;
+	light->tint.a = 1.0;
+	light->is_off = false;
+	light->slug_light = true;
+	light_manager->accept_light(light);
 	
 	// Animation stuff
 	animation_time = .5f;
@@ -25,7 +42,7 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	
 	
 	
-	acceleration_rate = .5;
+	acceleration_rate = 15.0;
 	gravity.set_y(1.0);
 	friction.set_x(25.0);
 	bottom_flag = top_flag = right_flag = left_flag = false;

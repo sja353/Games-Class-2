@@ -11,23 +11,30 @@
 class LightManager{
 public:
 	~LightManager(){
-		for (int i = 0; i < 32; i++){
-			delete lights[i];
+		for (int i = 0; i < active_lights.size(); i++){
+			delete active_lights[i];
+			active_lights.erase(active_lights.begin() + i);
 		}
 	}
 	LightManager(){}
-	void initialize() {
+	void initialize(ShaderProgram* program) {
 		for (int i = 0; i < 32; i++){
 			lights[i] = new Light();
 		}
 		ambient_light[0] = .1;
 		ambient_light[1] = .3;
 		ambient_light[2] = 0.0;
+		this->program = program;
+		lightPositionsUniform = glGetUniformLocation(program->programID, "lightPositions");
+		lightColorsUniform = glGetUniformLocation(program->programID, "lightColors");
+		lightABUniform = glGetUniformLocation(program->programID, "lightAB");
+		brightUniform = glGetUniformLocation(program->programID, "brightness");
+	
 	}
 	void accept_light(Light* light) {
 		active_lights.push_back(light);
 	}
-	void draw_lights(ShaderProgram* program, float player_x, float player_y){
+	void draw_lights(float player_x, float player_y){
 		for (int i = 0; i < j; i++){
 			lights[i] = new Light();
 		}
@@ -45,11 +52,7 @@ public:
 				}
 			}
 		}
-
-		GLint lightPositionsUniform = glGetUniformLocation(program->programID, "lightPositions");
-		GLint lightColorsUniform = glGetUniformLocation(program->programID, "lightColors");
-		GLint lightABUniform = glGetUniformLocation(program->programID, "lightAB");
-		GLint brightUniform = glGetUniformLocation(program->programID, "brightness");
+		glUseProgram(program->programID);
 		GLfloat lightAB[32 * 2];
 		GLfloat lightPositions[32 * 2];
 		GLfloat lightColors[32 * 3];
@@ -73,4 +76,9 @@ private:
 	Light* lights[32];
 	float ambient_light[3];
 	std::vector<Light*> active_lights;
+	GLint lightPositionsUniform;
+	GLint lightColorsUniform;
+	GLint lightABUniform;
+	GLint brightUniform;
+	ShaderProgram* program;
 };

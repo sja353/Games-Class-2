@@ -11,9 +11,10 @@
 #include <vector>
 #include "ShaderProgram.h"
 #include "Color.h"
+#include "Sheetposition.h"
 class ParticleEmitter{
 public:
-	ParticleEmitter(GLuint texture, unsigned int particle_count, float max_lifetime, float emitter_max_lifetime, Vector position, Vector gravity,
+	ParticleEmitter(GLuint texture, Sheetposition sheet_position, unsigned int particle_count, float max_lifetime, float randomization, float emitter_max_lifetime, Vector position, Vector gravity,
 		Vector velocity, Vector velocity_deviation, Color start_color, Color end_color, Color color_deviation, ShaderProgram* program,
 		unsigned int render_level, float initial_particle_size = 1.0f, float final_particle_size = 1.0f, float rotation_rate = 0.0f);
 	ParticleEmitter(){}
@@ -59,4 +60,6 @@ private:
 	int render_count = 0;
 	int update_count = 0;
 	GLuint texture;
+	GLuint colorAttribute;
+	Sheetposition sheet_position;
 };

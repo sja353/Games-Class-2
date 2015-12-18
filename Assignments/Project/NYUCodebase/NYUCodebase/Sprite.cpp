@@ -9,12 +9,14 @@
 
 void Sprite::move_right(){
 	mirrored = false;
-	acceleration.set_x(acceleration.get_x() + acceleration_rate);
+	acceleration.set_x(acceleration_rate);
 }
 
 void Sprite::move_left(){
 	mirrored = true;
-	acceleration.set_x(acceleration.get_x()- acceleration_rate);
+	acceleration.set_x (-acceleration_rate);
+}
+void Sprite::idle(){
 }
 
 void Sprite::jump(){

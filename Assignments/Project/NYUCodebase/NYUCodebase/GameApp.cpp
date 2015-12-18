@@ -9,6 +9,14 @@ GameApp::GameApp(){
 	Setup();
 }
 GameApp::~GameApp(){
+	for (int i = 0; i < enemies.size(); i++){
+		delete enemies[i];
+		enemies.erase(enemies.begin() + i);
+	}
+	for (int i = 0; i < spawned_enemies.size(); i++){
+		delete spawned_enemies[i];
+		spawned_enemies.erase(spawned_enemies.begin() + i);
+	}
 	delete program;
 	delete level;
 	delete projectile_manager;
@@ -47,7 +55,7 @@ void GameApp::Setup(){
     program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured_lights.glsl", RESOURCE_FOLDER"fragment_textured_lights.glsl");
 	ShaderProgram* program2 = new ShaderProgram(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragments2.glsl");
 	ShaderProgram* program3 = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-	glUseProgram(program->programID);
+	glUseProgram(program3->programID);
 	
 	float x = 3.55f;
 	float y = 2.0f;
@@ -58,23 +66,27 @@ void GameApp::Setup(){
 	program->setProjectionMatrix(projectionMatrix);
 	program2->setViewMatrix(viewMatrix);
 	program2->setProjectionMatrix(projectionMatrix);
+	program3->setViewMatrix(viewMatrix);
+	program3->setProjectionMatrix(projectionMatrix);
 	//setup
 	audio =new Audio();
 	special_effects = new SpecialEffects(program2, &viewMatrix, &projectionMatrix);
 	GLuint player_texture = LoadTexture("../graphics/player.png", GL_RGBA);
 	GLuint level_texture = LoadTexture("../graphics/tiles.png", GL_RGBA);
 	GLuint enemy_texture = LoadTexture("../graphics/enemies.png", GL_RGBA);
-	GLuint particle_texture = LoadTexture("../graphics/fire.png", GL_RGBA);
+	GLuint particle_texture = LoadTexture("../graphics/particles.png", GL_RGBA);
 	GLuint overlay_texture = LoadTexture("../graphics/overlay.png", GL_RGBA);
 	GLuint font_texture = LoadTexture("../graphics/TEXT.png", GL_RGBA);
-	info_overlay = InfoOverlay(overlay_texture, font_texture, program);
+	info_overlay = InfoOverlay(overlay_texture, font_texture, program3);
 	special_effects->set_texture(particle_texture);
 	background = LoadTexture("../graphics/purple.png", GL_RGB);
 	
 	light_manager = new LightManager();
-	light_manager->initialize();
+	light_manager->initialize(program);
 	level = new Level(level_texture, enemy_texture, program);
 	level->set_light_manager(light_manager);
+	level->set_special_effects(special_effects);
+	level->set_audio(audio);
 	level->generate();
 	projectile_manager = new ProjectileManager(special_effects);
 	projectile_manager->set_light_manager(light_manager);
@@ -87,8 +99,6 @@ void GameApp::Setup(){
 	player.set_level_modifier(level);
 	level->get_enemies_to_draw(&enemies);
 	state = GAMEPLAY;
-
-	
 	audio->playMusic();
 	//DBOUT(slug.get_width());
 	//DBOUT(slug.get_height());
@@ -109,7 +119,9 @@ void GameApp::ProcessEvents(){
 	else if (keys[SDL_SCANCODE_RIGHT] && state == GAMEPLAY){
 		player.move_right();
 	}
-	if (keys[SDL_SCANCODE_UP]){ player.jump(); }
+	if (keys[SDL_SCANCODE_UP]){ 
+		player.jump(); 
+	}
 	if (keys[SDL_SCANCODE_DOWN]){ player.down_key(); }
 	if (keys[SDL_SCANCODE_SPACE]) { player.shoot(); }
 	if (keys[SDL_SCANCODE_X]){ player.create_tile(); }
@@ -128,6 +140,7 @@ void GameApp::EnemyActions(){
 
 
 void GameApp::Update(float timestep){
+	audio->update(timestep);
 	switch (state){
 	case MAIN_MENU:
 		UpdateMainMenu(timestep);
@@ -187,7 +200,9 @@ void GameApp::RenderGameOver(){
 }
 
 void GameApp::RenderGamePlay() {
-	DrawBackGround();
+	//DrawBackGround();
+	program->setModelMatrix(modelMatrix);
+	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()));
 	projectile_manager->render();
 	special_effects->render(0);
 	for (int i = 0; i < enemies.size(); i++){
@@ -201,12 +216,13 @@ void GameApp::RenderGamePlay() {
 	viewMatrix.identity();
 	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.6, 0);
 	program->setViewMatrix(viewMatrix);
-	level->render(player.get_x_tile_position(level->get_tilesize()), player.get_y_tile_position(level->get_tilesize()));
+	
 	player.Draw();
+	special_effects->render(1);
 	for (int i = 0; i < spawned_enemies.size(); i++){
 		spawned_enemies[i]->Draw();
 	}
-	light_manager->draw_lights(program, player.get_x(), player.get_y());
+	light_manager->draw_lights(player.get_x(), player.get_y());
 	info_overlay.DrawOverlay(player.get_current_health(), player.get_max_health(),
 		player.get_current_mana(), player.get_max_mana(), player.get_position_vector());
 }
@@ -250,7 +266,6 @@ GLuint GameApp::LoadTexture(const char* image_path, int img_type){
 
 
 void GameApp::DrawBackGround(){
-	modelMatrix.identity();
 	program->setModelMatrix(modelMatrix);
 	glBindTexture(GL_TEXTURE_2D, background);
 	GLfloat texcoords[] = {
