@@ -9,7 +9,7 @@ class Level{
 public:
 	float get_x_spawn_position() { return x_spawn; }
 	float get_y_spawn_position() { return y_spawn; }
-	void modify_tile(int x, int y, unsigned char type);
+	bool modify_tile(int x, int y, unsigned char type);
 	~Level(){
 		for (int i = 0; i < height; i++){
 			delete[] terrain_save_map[i];
@@ -50,7 +50,7 @@ public:
 		}
 		return true;
 	}
-	void generate(); 
+	void generate(int difficulty); 
 	void render(int player_x, int player_y, bool draw_level);
 	float get_tilesize(){ return tilesize; }
 	TerrainTile get_tile(int x, int y);
@@ -67,6 +67,13 @@ public:
 		position.set_y((float)tilesize * y);
 		special_effects->rock_particles(position);
 	}
+	void generate_background(){
+		for (int i = 0; i < height; i++){
+			for (int j = 0; j < width; j++){
+				background_map[i][j] = convert_byte(i, j, (unsigned char)21);
+			}
+		}
+	}
 private:
 	void split(int level, int max_depth, int begin_x, int end_x, int begin_y, int end_y);
 	void form_platforms(int begin_x, int end_x, int begin_y, int end_y);
@@ -79,8 +86,10 @@ private:
 	bool is_room_for_horizontal_hall_and_room_left(int x, int y, int hallway_length, int room_width, int room_height);
 	float x_spawn;
 	float y_spawn;
-	int width= 500;
-	int height=20;
+	int width= 40;
+	int height=40;
+	int original_width = 200;
+	int original_height = 100;
 	float tilesize = .4;
 	float color_shift[3];
 	int max_room_height;
@@ -101,6 +110,7 @@ private:
 	LightManager* light_manager;
 	SpecialEffects* special_effects;
 	Audio* audio;
+	std::vector<Light*> lights;
 	TerrainTile convert_byte(int x, int y, unsigned char byte);
 
 };

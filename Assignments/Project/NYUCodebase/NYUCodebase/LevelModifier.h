@@ -10,7 +10,9 @@ public:
 	LevelModifier(Level* level){
 		this->level = level;
 	}
-	void add_tile(int x, int y){
-		level->modify_tile(x, y, unsigned char(16));
+	bool add_tile(int x, int y){
+		bool success;
+		success = level->modify_tile(x, y, unsigned char(16));
+		return success;
 	}
 };

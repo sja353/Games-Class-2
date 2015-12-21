@@ -28,6 +28,7 @@ TerrainTile::TerrainTile(const TerrainTile &tile){
 	this->destructible = tile.destructible;
 	this->has_light = tile.has_light;
 	this->light = tile.light;
+	this->win_tile = tile.win_tile;
 }
 
 TerrainTile& TerrainTile::operator= (const TerrainTile &rhs){
@@ -52,6 +53,7 @@ TerrainTile& TerrainTile::operator= (const TerrainTile &rhs){
 	this->destructible = rhs.destructible;
 	this->has_light = rhs.has_light;
 	this->light = rhs.light;
+	this->win_tile = rhs.win_tile;
 	return *this;
 }
 

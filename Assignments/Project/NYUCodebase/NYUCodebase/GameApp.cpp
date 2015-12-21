@@ -90,7 +90,7 @@ void GameApp::Setup(){
 	level->set_light_manager(light_manager);
 	level->set_special_effects(special_effects);
 	level->set_audio(audio);
-	level->generate();
+	level->generate_background();
 	projectile_manager = new ProjectileManager(special_effects);
 	projectile_manager->set_light_manager(light_manager);
 	
@@ -100,7 +100,7 @@ void GameApp::Setup(){
 	player.set_effects(special_effects);
 	player.set_projectile_manager(projectile_manager);
 	player.set_level_modifier(level);
-	level->get_enemies_to_draw(&enemies);
+	//level->get_enemies_to_draw(&enemies);
 	state = MAIN_MENU;
 	audio->playMusic();
 	//DBOUT(slug.get_width());
@@ -123,6 +123,7 @@ void GameApp::ProcessGamePlayEvents(){
 	if (keys[SDL_SCANCODE_SPACE]) { player.shoot(); }
 	if (keys[SDL_SCANCODE_X]){ player.create_tile(); }
 	if (keys[SDL_SCANCODE_Z]){ player.Transform(); }
+	if (keys[SDL_SCANCODE_C]){ player.shoot_bouncy(); }
 	else {
 		player.idle();
 	}
@@ -150,7 +151,10 @@ void GameApp::ProcessPauseEvents(){
 
 void GameApp::ProcessMenuEvents(){
 	if (button_movement_counter > min_button_movement) {
-		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 0){ state = GAMEPLAY; }
+		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 0){ 
+			difficulty = 0;
+			create_new_level();
+		}
 		if (keys[SDL_SCANCODE_RETURN] && menu_selection == 1) { done = true; }
 		if (keys[SDL_SCANCODE_UP] && menu_selection > 0){
 			menu_selection--;
@@ -384,7 +388,7 @@ void GameApp::RenderPause(){
 
 void GameApp::RenderGamePlay() {
 	//DrawBackGround();
-	light_manager->set_ambient_light(.1, 0.3, 0.0);
+	light_manager->set_ambient_light(0.1, 0.3, 0.2);
 	viewMatrix.identity();
 	viewMatrix.Translate(-player.get_x(), -player.get_y() - 0.6, 0);
 	program->setViewMatrix(viewMatrix);	
@@ -409,8 +413,39 @@ void GameApp::RenderGamePlay() {
 	light_manager->draw_lights(player.get_x(), player.get_y());
 	info_overlay.DrawOverlay(player.get_current_health(), player.get_max_health(),
 		player.get_current_mana(), player.get_max_mana(), player.get_position_vector());
-	if (player.get_current_health() < 0){ state = GAME_OVER; }
+	if (player.get_current_health() <= 0){ state = GAME_OVER; }
+	if (player.win_status()){
+		player.reset_win();
+		difficulty++;
+		create_new_level();
+	}
+		
 }
+
+void GameApp::create_new_level(){
+	projectile_manager->clear_active_projectiles();
+	special_effects->clear_active_effects();
+	level->generate(difficulty);
+	Vector position;
+	position.set_x(level->get_x_spawn_position());
+	position.set_y(level->get_y_spawn_position());
+	for (int i = 0; i < enemies.size(); i++){
+		if (enemies[i] != nullptr){
+			delete enemies[i];
+		}
+		enemies.erase(enemies.begin() + i);
+	}
+	for (int i = 0; i < spawned_enemies.size(); i++){
+		if (spawned_enemies[i] != nullptr){
+			delete spawned_enemies[i];
+		}
+		spawned_enemies.erase(spawned_enemies.begin() + i);
+	}
+	level->get_enemies_to_draw(&enemies);
+	player.set_position_vector(position);
+	state = GAMEPLAY;
+}
+
 
 bool GameApp::UpdateAndRender(){
 	

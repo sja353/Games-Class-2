@@ -17,6 +17,7 @@ public:
 	void calculate_x_terrain_collisions(Level* level);
 	void calculate_y_terrain_collisions(Level* level);
 	virtual void hurt_from_tile(int damage){}
+	virtual void touched_win_tile(){}
 	//Getters/setters
 	int get_x_tile_position(float tilesize);
 	int get_y_tile_position(float tilesize);

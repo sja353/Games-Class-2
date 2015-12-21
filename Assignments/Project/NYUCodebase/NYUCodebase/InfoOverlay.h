@@ -34,9 +34,9 @@ public:
 		Vector health_position;
 		Vector mana_position;
 		health_position.set_x( - 3.2);
-		health_position.set_y( 1.8);
+		health_position.set_y( 1.6);
 		mana_position.set_x( -2.5);
-		mana_position.set_y( 1.8);
+		mana_position.set_y( 1.6);
 		
 		health.set_position_vector(health_position);
 		mana.set_position_vector(mana_position);

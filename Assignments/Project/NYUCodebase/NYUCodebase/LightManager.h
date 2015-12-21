@@ -16,6 +16,17 @@ public:
 			active_lights.erase(active_lights.begin() + i);
 		}
 	}
+	void clear_active_light(){
+		/*for (int i = 0; i < active_lights.size(); i++){
+			delete active_lights[i];
+			active_lights.erase(active_lights.begin() + i);
+		}
+		for (int i = 0; i < 32; i++){ 
+//			if (lights[i] != nullptr){ delete lights[i]; }
+			lights[i] = new Light();
+		}*/
+		j = 0;
+	}
 	LightManager(){}
 	void initialize(ShaderProgram* program) {
 		for (int i = 0; i < 32; i++){
@@ -40,6 +51,7 @@ public:
 		ambient_light[1] = g;
 		ambient_light[2] = b;
 	}
+	int number_of_lights(){ return active_lights.size(); }
 	void draw_lights(float player_x, float player_y){
 		for (int i = 0; i < j; i++){
 			lights[i] = new Light();

@@ -8,7 +8,7 @@
 }
 
 Player::Player(float size, float x_position, float y_position, int texture, ShaderProgram* program){
-	current_health = max_health = 10;
+	current_health = max_health = 1000;
 	current_mana = max_mana = 75;
 	stretchy = true;
 	this->program = program;
@@ -71,12 +71,13 @@ Player::Player(float size, float x_position, float y_position, int texture, Shad
 	friction.set_y(0);
 }
 void Player::Transform(){
-	if (time_since_transformed > min_transform_wait){
+	if (time_since_transformed > min_transform_wait && current_mana >= 5){
+		current_mana -= 5;
 		Color start_color;
-		start_color.r = 0;
-		start_color.g = 1.0;
-		start_color.b = 0;
-		start_color.a = 1.0;
+		start_color.r = 0.5;
+		start_color.g = 0.0;
+		start_color.b = 0.5;
+		start_color.a = 0.5;
 		Color end_color = start_color;
 		end_color.a = 0.0;
 		Color color_deviation;
@@ -90,6 +91,7 @@ void Player::Transform(){
 			gravity.set_y(25.0);
 			hurt_frame = 7;
 			stretchy = true;
+			this->set_hitbox(((66.0f / 92.0f)*.3f) - .05, .3f);
 		}
 		else{
 			velocity.set_y(0);
@@ -101,6 +103,7 @@ void Player::Transform(){
 			hurt_frame = 8;
 			current_frame = 8;
 			stretchy = false;
+			this->set_hitbox(((66.0f / 92.0f)*.3f) - .05, .1f);
 		}
 	}
 	else{ audio->negativeSound(); }
@@ -108,25 +111,34 @@ void Player::Transform(){
 void Player::calculate_enemy_collision(Enemy* enemy){
 	if (this->Collides(enemy)){
 		if (this->position.get_y() -height/2 > enemy->get_y()){ 
-			enemy->die(); 
+			if (!transformed){ enemy->die(); }
+			else {
+				current_health -= 5;
+				audio->hurtSound();
+
+			}
 			this->acceleration.set_y(0);
 			this->velocity.set_y(3.0);
 		}
 		else if (this->position.get_x()+ width / 2 < enemy->get_position().get_x() && !hurt){
 			audio->hurtSound();
 			this->velocity.set_y(this->velocity.get_y()+1.0);
-			this->velocity.set_x(this->velocity.get_x() - 30.0);
+			this->velocity.set_x(this->velocity.get_x() - 10.0);
 			enemy->set_y_velocity(enemy->get_y_velocity() +1.0);
 			enemy->set_x_velocity(enemy->get_x_velocity() + 20);
 			hurt = true;
+			if (transformed){ current_health -= 5; }
+			else { current_health -= 1; }
 		}
 		else if (this->position.get_x() - width / 2 > enemy->get_position().get_x() && !hurt){
 			audio->hurtSound();
 			this->velocity.set_y(this->velocity.get_y() + 1.0);
-			this->velocity.set_x(this->velocity.get_x() + 30.0);
+			this->velocity.set_x(this->velocity.get_x() + 10.0);
 			enemy->set_y_velocity(enemy->get_y_velocity() + 1.0);
 			enemy->set_x_velocity(enemy->get_x_velocity() - 20);
 			hurt = true;
+			if (transformed){ current_health -= 5; }
+			else { current_health -= 1; }
 		}
 	}
 }
@@ -162,11 +174,23 @@ void Player::decide_frame(){
 	if (hurt){ current_frame = hurt_frame; }
 	sprite = frames[current_frame];
 	if (transformed && current_frame < 8 || transformed && current_frame > 11){
-		DBOUT(current_frame);
+		//DBOUT(current_frame);
 	}
 }
 
 void Player::update(float time_elapsed, Level* level){
+	health_drain_counter += time_elapsed;
+	mana_refill_counter += time_elapsed;
+	if (health_drain_counter > health_drain_rate){
+		health_drain_counter = 0;
+		current_health--;
+	}
+
+	if (mana_refill_counter > mana_refill_rate && current_mana < max_mana){
+		mana_refill_counter = 0;
+		current_mana++;
+	}
+	mana_refill_rate = pow(((float)current_health/(float)max_health), 3.0f);
 	time_since_transformed += time_elapsed;
 	if (transformed) { transform_timer+=time_elapsed; }
 	if (transform_timer > transform_time_limit){

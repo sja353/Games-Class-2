@@ -52,6 +52,8 @@ public:
 	int get_damage() { return damage; }
 	void set_damage(int damage) { this->damage = damage; }
 	void set_destructible(bool destructible) { this->destructible = destructible; }
+	void set_win_tile(bool win_tile){ this->win_tile = win_tile; }
+	bool is_win_tile() { return win_tile; }
 	
 private:
 	bool top_solid, bottom_solid, right_solid, left_solid;
@@ -61,4 +63,5 @@ private:
 	bool exists = false;
 	bool destructible = true;
 	bool has_light = false;
+	bool win_tile = false;
 };

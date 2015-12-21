@@ -2,12 +2,24 @@
 
 class Fireball :public Projectile{
 public:
-	Fireball(Vector initial_position, Vector initial_velocity, Vector acceleration, ParticleEmitter* emitter, int damage){
+	~Fireball(){
+		light->turn_off();
+	}
+	Fireball(Vector initial_position, Vector initial_velocity, Vector acceleration, ParticleEmitter* emitter, int damage, LightManager* light_manager){
 		position = initial_position;
 		velocity = initial_velocity;
 		this->emitter = emitter;
 		exploding_lifetime = .3f;
 		max_impacts = 1;
+		light = new Light();
+		light->position = initial_position;
+		light->tint.r = 1.0;
+		light->tint.g = 1.0;
+		light->tint.b = 0.0;
+		light->a = 1.0;
+		light->b = 2.0;
+		light->is_off = false;
+		light_manager->accept_light(light);
 		this->damage = damage;
 		this->acceleration = acceleration;
 		max_velocity = 20.0f;
@@ -16,6 +28,7 @@ public:
 	}
 
 	void update(float time_elapsed, Level* level) override{
+		light->position = this->position;
 		lifetime += time_elapsed;
 		make_adjustments();
 		if (!exploding){
@@ -30,4 +43,6 @@ public:
 		}
 		emitter->update(time_elapsed);
 	}
+private:
+	Light* light;
 };

@@ -36,6 +36,7 @@ private:
 	void UpdateGameOver(float timestep);
 	void UpdatePause(float timestep);
 	void DrawBackGround();
+	void create_new_level();
 
 
 	bool done;
@@ -69,5 +70,6 @@ private:
 	int menu_selection = 0;
 	float min_button_movement = .1f;
 	float button_movement_counter = 0.0f;
+	int difficulty = 0;
 };
 #endif

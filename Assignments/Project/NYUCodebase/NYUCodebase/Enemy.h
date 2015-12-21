@@ -16,12 +16,12 @@ public:
 	virtual void get_behavior(float player_x, float player_y) {}
 	virtual void decide_frame(){}
 	bool is_expired(){ return expired; }
-
-	
+	void set_level(Level* level) { this->level = level; }
 protected:
 	bool dead;
 	int death_frame;
 	int walk_begin, walk_end;
 	bool expired = false;
+	Level* level;
 };
 

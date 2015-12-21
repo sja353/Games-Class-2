@@ -29,26 +29,39 @@ public:
 		if (transformed){ acceleration.set_y(-2 * bat_acceleration); }
 	}
 	void shoot(){
-		if (!transformed){
+		if (!transformed && current_mana >= 2){
 			if (shoot_timer > shoot_spacing){
+				current_mana-=2;
 				audio->shootSound();
 				shoot_timer = 0.0f;
 				projectile_manager->shoot_fireball(position, mirrored);
+				//projectile_manager->shoot_bouncing_fireball(position, mirrored);
+			}
+		}
+	}
+	void shoot_bouncy(){
+		if (!transformed && current_mana >= 4){
+			if (shoot_timer > shoot_spacing){
+				current_mana-=4;
+				audio->shootSound();
+				shoot_timer = 0.0f;
+				//projectile_manager->shoot_fireball(position, mirrored);
 				projectile_manager->shoot_bouncing_fireball(position, mirrored);
 			}
 		}
 	}
-
 	void create_tile(){
-		if (!transformed){
+		if (!transformed && current_mana >= 2){
+			bool success;
 			if (mirrored){
-				level_modifier.add_tile(this->get_x_tile_position(level_modifier.get_tilesize()) - 1,
+				success=level_modifier.add_tile(this->get_x_tile_position(level_modifier.get_tilesize()) - 1,
 					this->get_y_tile_position(level_modifier.get_tilesize()));
 			}
 			else{
-				level_modifier.add_tile(this->get_x_tile_position(level_modifier.get_tilesize()) + 1,
+				success=level_modifier.add_tile(this->get_x_tile_position(level_modifier.get_tilesize()) + 1,
 					this->get_y_tile_position(level_modifier.get_tilesize()));
 			}
+			if (success){ current_mana -= 2; }
 		}
 	}
 
@@ -96,7 +109,13 @@ public:
 	}
 
 	void Transform();
-
+	void touched_win_tile() { win = true; }
+	bool win_status() { return win; }
+	void reset_win() { 
+		mana_refill_rate = 1.0;
+		win = false; 
+		current_health = max_health;
+	}
 protected:
 	int max_health, current_health, max_mana, current_mana;
 	float size_storage, width_storage, height_storage;
@@ -117,5 +136,7 @@ protected:
 	float shoot_timer = 0.0f;
 	float shoot_spacing = .25f;
 	LevelModifier level_modifier;
-	
+	bool win = false;
+	float health_drain_rate = 1.0, health_drain_counter = 0.0;
+	float mana_refill_rate = 1.0, mana_refill_counter = 0.0;
 };

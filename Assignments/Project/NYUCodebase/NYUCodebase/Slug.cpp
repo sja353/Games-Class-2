@@ -47,6 +47,7 @@ Slug::Slug(float size, float x_position, float y_position, int texture, ShaderPr
 	friction.set_x(25.0);
 	bottom_flag = top_flag = right_flag = left_flag = false;
 	hp = 10;
+	mirrored = true;
 }
 
 

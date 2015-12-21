@@ -19,7 +19,13 @@ private:
 	Matrix *viewMatrix, *projectionMatrix;
 	Sheetposition shaded_ball, white_square, white_ball, white_smoke, rock_particle;
 public:
-	~SpecialEffects(){  }
+	~SpecialEffects(){ 
+		for (int i = 0; i < active_emitters.size(); i++){
+			delete active_emitters[i];
+			active_emitters.erase(active_emitters.begin() + i);
+		}
+	
+	}
 	SpecialEffects(){}
 	void set_texture(GLuint texture){
 		this->texture = texture;
@@ -92,6 +98,33 @@ public:
 		active_emitters.push_back(new_emitter);
 		clear_all_values();
 	}
+	void exit_effect(Vector position){
+		particle_count = 100;
+		max_lifetime = 2.0;
+		this->position = position;
+		gravity.set_y(-10.0);
+		this->velocity.set_x(0.0);
+		this->velocity.set_y(0.0);
+		velocity_deviation.set_x(2.0);
+		velocity_deviation.set_y(2.0);
+		this->start_color.r = 0.5;
+		this->start_color.g = 0.5;
+		this->start_color.b = 0.5;
+		this->start_color.a = 1.0;
+		this->end_color.r = 0.5;
+		this->end_color.g = 0.5;
+		this->end_color.b = 0.5;
+		this->end_color.a = 1.0;
+		this->color_deviation.r = 1.0;
+		this->color_deviation.g = 1.0;
+		this->color_deviation.b = 1.0;
+		this->color_deviation.a = 0.0;
+		render_level = 1;
+		ParticleEmitter* new_emitter = new  ParticleEmitter(texture, white_ball, particle_count, max_lifetime, max_lifetime, 9999999.99f, this->position, gravity, this->velocity,
+			velocity_deviation, start_color, end_color, color_deviation, program, render_level, .04f, .04f, 0.0);
+		active_emitters.push_back(new_emitter);
+		clear_all_values();
+	}
 	void smoke_puff(Vector position, Color start_color, Color end_color, Color color_deviation){
 		particle_count = 50;
 		max_lifetime = .4;
@@ -123,34 +156,7 @@ public:
 		color_deviation.clear();
 		color_deviation.a = 0.0;
 	}
-	/*void jumpTest(float x, float y){
-		particle_count = 50;
-		max_lifetime = .5;
-		position.set_x(x);
-		position.set_y(y);
-		gravity.set_x(0.0f);
-		gravity.set_y(.1f);
-		velocity.set_x(0.0f);
-		velocity.set_y(0.0f);
-		velocity_deviation.set_x(1.0f);
-		velocity_deviation.set_y(1.0f);
-		start_color.r = 0.0;
-		start_color.g = 1.0;
-		start_color.b = 0.0;
-		start_color.a = 1.0;
-		end_color.r = 0.0;
-		end_color.g = 0.0;
-		end_color.b = 1.0;
-		end_color.a = 1.0;
-		color_deviation.r = 0.0;
-		color_deviation.g = 0.0;
-		color_deviation.b = 0.0;
-		color_deviation.a = 0.0;
-		render_level = 0;
-		ParticleEmitter new_emitter = ParticleEmitter(particle_count, max_lifetime, 2.0, position, gravity, velocity, 
-										velocity_deviation, start_color, end_color, color_deviation, program, render_level);
-		active_emitters.push_back(new_emitter);
-	}*/
+	
 	void update(float time_elapsed){
 		for (int i = 0; i < active_emitters.size(); i++){
 			active_emitters[i]->update(time_elapsed);
@@ -166,5 +172,10 @@ public:
 			if (active_emitters[i]->get_render_level() == render_level){active_emitters[i]->render();}
 		}
 	}
-
+	void clear_active_effects(){
+		for (int i = 0; i < active_emitters.size(); i++){
+			delete active_emitters[i];
+			active_emitters.erase(active_emitters.begin() +i);
+		}
+	}
 };

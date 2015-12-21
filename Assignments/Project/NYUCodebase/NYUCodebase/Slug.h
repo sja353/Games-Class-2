@@ -9,9 +9,29 @@ class Slug : public Enemy{
 public:
 	~Slug(){
 		if (light != nullptr){ light->turn_off(); }
-		delete frames;
+		delete[] frames;
 	}
 	Slug(){}
+	void hurt_from_tile(int damage) {
+		acceleration.set_y(0);
+		hp -= damage;
+		if (hurt_from_top){
+			hurt_from_top = false;
+			velocity.set_y(-hurt_jump);
+		}
+		else if (hurt_from_bottom){
+			hurt_from_bottom = false;
+			velocity.set_y(hurt_jump);
+		}
+		else if (hurt_from_right){
+			hurt_from_right = false;
+			velocity.set_x(-hurt_jump);
+		}
+		else if (hurt_from_left){
+			hurt_from_left = false;
+			velocity.set_x(hurt_jump);
+		}
+	}
 	Slug(float size, float x_position, float y_position, int texture, 
 		ShaderProgram* program, float color_r, float color_g, float color_b, LightManager* light_manager);
 	void update(float time_elapsed, Level* level){
@@ -36,13 +56,29 @@ public:
 	}
 	void get_behavior(float player_x, float player_y) {
 		if (!dead){
-			if (player_x < position.get_x()) {
-				this->move_left();
-				this->mirrored = !this->mirrored;
+			int tile_x = this->get_x_tile_position(level->get_tilesize());
+			int tile_y = this->get_y_tile_position(level->get_tilesize());
+			if (moving_right){
+				if (level->get_tile(tile_x + 1, tile_y - 1).damage_top() || !level->get_tile(tile_x + 1, tile_y - 1).is_there()
+					|| level->get_tile(tile_x + 1, tile_y).is_there()){
+					moving_right = false;
+					moving_left = true;
+				}
 			}
-			else{
-				this->move_right();
-				this->mirrored = !this->mirrored;
+			else if (moving_left) {
+				if (level->get_tile(tile_x - 1, tile_y - 1).damage_top() || !level->get_tile(tile_x - 1, tile_y - 1).is_there()
+					|| level->get_tile(tile_x - 1, tile_y).is_there()){
+					moving_right = true;
+					moving_left = false;
+				}
+			}
+			if (moving_right) {
+				this->move_right(); 
+				mirrored = true;
+			}
+			else if (moving_left) { 
+				this->move_left();
+				mirrored = false;
 			}
 		}
 	}
@@ -67,5 +103,8 @@ private:
 	float death_counter = 0.0f;
 	float death_time = 5.0f;
 	Light* light;
+	bool moving_left = false;
+	bool moving_right = true;
+	float hurt_jump = 1.0;
 };
 #endif

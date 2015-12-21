@@ -25,6 +25,12 @@ private:
 	float effects_time = .3f;
 	LightManager* light_manager;
 public:
+	~ProjectileManager(){
+		for (int i = 0; i < player_projectiles.size(); i++){
+			delete player_projectiles[i];
+			player_projectiles.erase(player_projectiles.begin() + i);
+		}
+	}
 	void set_light_manager(LightManager* light_manager){ this->light_manager = light_manager; }
 	ProjectileManager(SpecialEffects* special_effects){
 		this->special_effects = special_effects;
@@ -48,7 +54,7 @@ public:
 		color_deviation.a = 0.0;
 		emitter = special_effects->fireball_trail(position, flip, start_color, end_color, color_deviation);
 		
-		player_projectiles.push_back(new Fireball(position, velocity, acceleration, emitter, 5));
+		player_projectiles.push_back(new Fireball(position, velocity, acceleration, emitter, 5, light_manager));
 	}
 
 	void shoot_bouncing_fireball(Vector position, bool facing_left){
@@ -97,4 +103,10 @@ public:
 		}
 	}
 	
+	void clear_active_projectiles(){
+		for (int i = 0; i < player_projectiles.size(); i++){
+			delete player_projectiles[i];
+			player_projectiles.erase(player_projectiles.begin() + i);
+		}
+	}
 };

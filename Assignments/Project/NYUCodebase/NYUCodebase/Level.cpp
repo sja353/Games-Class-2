@@ -19,6 +19,7 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 				float b = (float)rand() / RAND_MAX;
 				Slug* slug = new Slug(0.2f, j*tilesize, i*tilesize, enemy_texture, program, r, g, b, light_manager);
 				slug->set_hitbox(0.3f, 0.2f);
+				slug->set_level(this);
 				enemy_list->push_back(slug);
 				//RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
 			
@@ -43,6 +44,7 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 	hurts_top = hurts_bottom = hurts_right = hurts_left = false;
 	bool destructible = true;
 	int damage = 0;
+	bool win_tile = false;
 	if (byte == (unsigned char)1){
 		//bare stone
 		/*<SubTexture name = "tile2.png" x = "216" y = "432" width = "70" height = "70" / >
@@ -401,9 +403,9 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 	}
 	else if (byte == (unsigned char)21){
 		//background
-			/*<SubTexture name = "background1.png" x = "1028" y = "0" width = "70" height = "70" / >
-			<SubTexture name = "background2.png" x = "1028" y = "72" width = "70" height = "70" / >
-			<SubTexture name = "background3.png" x = "1028" y = "144" width = "70" height = "70" / >*/
+		/*<SubTexture name = "background1.png" x = "1028" y = "0" width = "70" height = "70" / >
+		<SubTexture name = "background2.png" x = "1028" y = "72" width = "70" height = "70" / >
+		<SubTexture name = "background3.png" x = "1028" y = "144" width = "70" height = "70" / >*/
 		int roll = rand() % 3;
 		if (roll == 1){
 			x = 1028;
@@ -418,6 +420,20 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 			y = 144;
 		}
 	}
+	else if (byte == (unsigned char)22){
+		//win tile
+		x = 0.0f;
+		y = 0.0f;
+		Vector exit_position;
+		exit_position.set_x((float)x_coord * tilesize + tilesize/2);
+		exit_position.set_y((float)y_coord * tilesize + tilesize/2);
+		special_effects->exit_effect(exit_position);
+		win_tile = true;
+		triggered = true;
+		destructible = false;
+
+	}
+	
 	Sheetposition position;
 	position = Sheetposition(x, y, 70.0f, 70.0f, tilesize, sheet_width, sheet_height);
 	tile = TerrainTile(x_coord*tilesize + tilesize / 2, y_coord*tilesize + tilesize / 2, tile_texture, position, program);
@@ -428,6 +444,7 @@ TerrainTile Level::convert_byte(int y_coord, int x_coord, unsigned char byte){
 	tile.set_hp(10);
 	tile.set_damage(damage);
 	tile.set_destructible(destructible);
+	tile.set_win_tile(win_tile);
 	return tile;
 }
 
@@ -538,12 +555,14 @@ void Level::set_tile(int x, int y, TerrainTile tile){
 	terrain_map[y][x] = tile;
 }
 
-void Level::modify_tile(int x, int y, unsigned char type){
+bool Level::modify_tile(int x, int y, unsigned char type){
 	if (!this->get_tile(x, y).is_there()){  
 		audio->transformSound();
 		TerrainTile tile = convert_byte(y, x, type);
 		terrain_map[y][x] = tile;
+		return true;
 	}
+	else { return false; }
 }
 
 // Level Generation stuff begins here
@@ -903,7 +922,7 @@ bool Level::is_room_for_vertical_hall_and_room(int x, int y, int hallway_length,
 	}
 	return true;
 }
-void Level::generate() {
+void Level::generate(int difficulty) {
 	/*SIMPLE LEVEL GENERATION for testing stuff
 	int previous_floor= 10;
 	int length_counter = 0;
@@ -1072,7 +1091,16 @@ void Level::generate() {
 	// ROOM GENERATION: METHOD 2
 
 // REMEMBER: 0, 0 is the bottom left (y counts up)
+	
 
+
+
+
+
+	for (int i = 0; i < lights.size(); i++){
+		lights[i]->turn_off();
+		lights.erase(lights.begin() + i);
+	}	
 	for (int i = 0; i < height; i++){
 		delete[] terrain_save_map[i];
 		delete[] terrain_map[i];
@@ -1083,8 +1111,8 @@ void Level::generate() {
 	delete[] terrain_map;
 	delete[] background_map;
 	delete[] sprite_save_map;
-	width = 500;
-	height = 300;
+	width = 200 + 50*difficulty;
+	height = 100 + 25* difficulty;
 	terrain_save_map = new unsigned char*[height];
 	terrain_map = new TerrainTile*[height];
 	background_map = new TerrainTile*[height];
@@ -1110,7 +1138,10 @@ void Level::generate() {
 	}
 	
 	int x = 30;
-	int y = height - 80;
+	int y = height - 40;
+
+	int end_x = x +5;
+	int end_y = y;
 
 	x_spawn = (float)x * tilesize;
 	y_spawn = (float)y*tilesize;
@@ -1138,7 +1169,9 @@ void Level::generate() {
 			}
 		}
 	}
-	DBOUT("earliest cleared y: " << y2);
+	end_y = y2;
+	end_x = x2;
+	//DBOUT("earliest cleared y: " << y2);
 		
 	//Covering things with grass
 	//1 =bare stone
@@ -1169,7 +1202,7 @@ void Level::generate() {
 	for (int i = 0; i < height - 1; i++){
 		for (int j = 1; j < width - 1; j++){
 			int roll = rand() % 3 + 1;
-			if (terrain_save_map[i][j] == (unsigned char)1 && is_room_for_lava_pool(i, j + 1, roll) && rand() % 100 < 10){
+			if (terrain_save_map[i][j] == (unsigned char)1 && is_room_for_lava_pool(i, j + 1, roll) && rand() % 100 < 10 + difficulty){
 				terrain_save_map[i][j] = (unsigned char)18;
 				terrain_save_map[i-1][j] = (unsigned char)18;
 				for (int k = 1; k <= roll; k++){
@@ -1189,6 +1222,7 @@ void Level::generate() {
 				light->tint.b = 0.0;
 				light->tint.a = 1.0;
 				light->is_off = false;
+				lights.push_back(light);
 				light_manager->accept_light(light);
 			}
 			
@@ -1251,12 +1285,12 @@ void Level::generate() {
 				terrain_save_map[i][j] == (unsigned char)7 || terrain_save_map[i][j] == (unsigned char)8 ||
 				terrain_save_map[i][j] == (unsigned char)12 || terrain_save_map[i][j] == (unsigned char)13 ||
 				terrain_save_map[i][j] == (unsigned char)14 || terrain_save_map[i][j] == (unsigned char)16) &&
-				rand() % 100 < 10){
+				rand() % 100 < 10 + 3*difficulty){
 				terrain_save_map[i][j] = (unsigned char)17;
 			}
 		}
 	}
-
+	terrain_save_map[end_y][end_x] = (unsigned char)22;
 	//CAVE GENERATION
 	
 	/*
@@ -1332,10 +1366,8 @@ void Level::generate() {
 	*/
 	convert_byte_map();
 	for (int i = 0; i < height; i++){
-		
-		
 		for (int j = 0; j < width; j++){
-			if (!terrain_map[i][j].is_there() && rand() % 1000 < 15){
+			if (!terrain_map[i][j].is_there() && rand() % 1000 < 15 + difficulty){
 				sprite_save_map[i][j] = (unsigned char)1;
 			}
 		}
