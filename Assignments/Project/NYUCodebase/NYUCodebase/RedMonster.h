@@ -53,7 +53,7 @@ public:
 		walk_end = 4;
 		sprite = monsterStand;
 
-		acceleration_rate = 1.5;
+		acceleration_rate = 25.5;
 		gravity.set_y(25.0);
 		friction.set_x(25.0);
 		bottom_flag = top_flag = right_flag = left_flag = false;

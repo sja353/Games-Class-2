@@ -1,0 +1,10 @@
+Controls:
+
+z to transform
+x to create tile
+c to shoot bouncy fireball
+space to shoot normal fireball
+direction keys to move, up to jump
+escape to pause
+
+Note: If you want to check it out, go to level generate function, and at the end of the function there is a loop to fill the sprite map with enemies. Change it to (unsigned char)2 to see the RedMonster enemy class (incomplete).

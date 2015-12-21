@@ -21,10 +21,12 @@ void Level::get_enemies_to_draw(std::vector<Enemy*>* enemy_list){
 				slug->set_hitbox(0.3f, 0.2f);
 				slug->set_level(this);
 				enemy_list->push_back(slug);
-				//RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
-			
-				//red_monster->set_hitbox(0.6f, 0.27f);
-				//enemy_list->push_back(red_monster);
+				
+			}
+			if (sprite_save_map[i][j] == (unsigned char)2){
+				RedMonster* red_monster = new RedMonster(0.3f, j*tilesize, i*tilesize, enemy_texture, program);
+				red_monster->set_hitbox(0.3f, 0.27f);
+				enemy_list->push_back(red_monster);
 			}
 		}
 	}
@@ -1382,3 +1384,4 @@ void Level::convert_byte_map(){
 		}
 	}
 }
+
